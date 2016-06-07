@@ -1,0 +1,87 @@
+/*
+* Parts
+*/
+@import "parts/variables";
+@import "parts/reset";
+
+
+/*
+*	Content
+*/
+.content  {
+	position: relative;
+
+	h1 {
+		font-size: 44px;
+		font-weight: 400;
+		line-height: 44px;
+		margin: -10px 0 0 -3px;
+	}
+
+	a {
+		color: #fff;
+		display: inline-block;
+		border-bottom: 1px solid rgba(255,255,255,0.2);
+
+		&:hover {
+			border-bottom: 1px solid rgba(255,255,255,0.4);
+			transition: all .2s;
+		}
+	}
+
+	p {
+		margin-bottom: 5px;
+		font-size: 18px;
+		line-height: 22px;
+	}
+
+	&__links {
+		margin-top: 25px;
+		color: rgba(255, 255, 255, 0.4);
+
+		a {
+			position: relative;
+			margin-right: 15px;
+
+			&:before {
+				content: "·";
+				display: inline-block;
+				width: 15px;
+				position: absolute;
+				left: -15px;
+				font-size: 18px;
+				text-align: center;
+				color: rgba(255, 255, 255, 0.4);
+			}
+
+			&:first-child:before {
+				content: "";
+			}
+		}
+	}
+
+	&__subheader { 
+		margin: 5px 0 25px;
+		display: block;
+		font-size: 14px; 
+		opacity: .6;
+	}
+}
+
+.content__logo {
+	position: relative;
+	width: 60px;
+	transform: translateX(-50%);
+	left: 50%;
+	margin-top: 50px;
+
+	@media (--w768) {
+		display: block;
+		position: absolute;
+		left: auto;
+		bottom: 40px;
+		right: 40px;
+		width: 300px;
+		transform: none;
+	}
+}
