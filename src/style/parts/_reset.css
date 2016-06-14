@@ -1,15 +1,11 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,600);
+
 * {
   box-sizing: border-box;
   vertical-align: top;
 }
 
-ul {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-}
-
-p, h1, h2, h3, h4, h5, h6 {
+p, h1 {
 	margin: 0;
 }
 
@@ -20,8 +16,6 @@ a {
 		text-decoration: none;
 	}
 }
-
-
 
 html {
 	font: 300 12px "Open Sans", Helvetica, Arial, sans-serif;
@@ -34,4 +28,8 @@ html {
 
 body {
 	padding: 30px;
+
+	@media (--w768) {
+		padding: 50px;
+	}
 }

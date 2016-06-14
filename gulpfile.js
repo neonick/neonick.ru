@@ -130,7 +130,7 @@ gulp.task('watch:css', function () {
             postcssSVG({
                 paths: ['src/i/'],
             }),
-            fontmagician,
+            // fontmagician,
             postcssShort,
             postcssCenter,
             postcssfocus,
@@ -159,7 +159,7 @@ gulp.task('build:css', function () {
             postcssSVG({
                 paths: ['src/i/'],
             }),
-            fontmagician,
+            // fontmagician,
             postcssShort,
             postcssCenter,
             postcssfocus,

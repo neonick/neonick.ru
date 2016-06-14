@@ -12,10 +12,18 @@
 	position: relative;
 
 	h1 {
-		font-size: 44px;
-		font-weight: 400;
-		line-height: 44px;
+		font-weight: 600;
 		margin: -10px 0 0 -3px;
+		font-size: 48px;
+	    line-height: 50px;
+	    letter-spacing: -1px;
+	    cursor: default;
+
+	    @media (--w768) {
+	    	font-size: 64px;
+	    	line-height: 70px;
+	    	letter-spacing: 4px;
+	    }
 	}
 
 	a {
@@ -31,8 +39,13 @@
 
 	p {
 		margin-bottom: 5px;
-		font-size: 18px;
+		font-size: 20px;
 		line-height: 22px;
+
+		@media (--w768) {
+			font-size: 26px;
+			line-height: 30px;
+		}
 	}
 
 	&__links {
@@ -43,6 +56,10 @@
 			position: relative;
 			margin-right: 15px;
 
+			@media (--w768) {
+				margin-right: 26px;
+			}
+
 			&:before {
 				content: "·";
 				display: inline-block;
@@ -52,10 +69,20 @@
 				font-size: 18px;
 				text-align: center;
 				color: rgba(255, 255, 255, 0.4);
+
+				@media (--w768) {
+					width: 26px;
+					left: -26px;
+					font-size: 26px;
+				}
 			}
 
 			&:first-child:before {
 				content: "";
+			}
+
+			&:last-child {
+				margin-right: 0;
 			}
 		}
 	}
@@ -63,15 +90,16 @@
 	&__subheader { 
 		margin: 5px 0 25px;
 		display: block;
-		font-size: 14px; 
-		opacity: .6;
+		font-size: 18px; 
+		opacity: .5;
+		cursor: default;
 	}
 }
 
 .content__logo {
 	position: relative;
 	width: 60px;
-	transform: translateX(-50%);
+	margin-left: -30px;
 	left: 50%;
 	margin-top: 50px;
 
@@ -79,8 +107,8 @@
 		display: block;
 		position: absolute;
 		left: auto;
-		bottom: 40px;
-		right: 40px;
+		bottom: 50px;
+		right: 50px;
 		width: 300px;
 		transform: none;
 	}
