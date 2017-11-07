@@ -12,12 +12,13 @@
 	position: relative;
 
 	h1 {
-		font-weight: 600;
+		font-weight: 400;
 		margin: -10px 0 0 -3px;
 		font-size: 48px;
-	    line-height: 50px;
-	    letter-spacing: -1px;
-	    cursor: default;
+    line-height: 50px;
+    cursor: default;
+		text-transform: uppercase;
+		font-family: Futura, sans-serif;
 
 	    @media (--w768) {
 	    	font-size: 64px;
@@ -87,10 +88,10 @@
 		}
 	}
 
-	&__subheader { 
+	&__subheader {
 		margin: 5px 0 25px;
 		display: block;
-		font-size: 18px; 
+		font-size: 18px;
 		opacity: .5;
 		cursor: default;
 	}
@@ -98,18 +99,16 @@
 
 .content__logo {
 	position: relative;
-	width: 60px;
-	margin-left: -30px;
+	width: 100px;
+	margin-left: -50px;
 	left: 50%;
 	margin-top: 50px;
 
 	@media (--w768) {
-		display: block;
 		position: absolute;
-		left: auto;
-		bottom: 50px;
-		right: 50px;
-		width: 300px;
-		transform: none;
+    bottom: 20px;
+    right: 30px;
+    left: auto; 
+    width: 200px;
 	}
 }
