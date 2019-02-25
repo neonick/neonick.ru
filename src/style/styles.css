@@ -99,10 +99,10 @@
 
 .content__logo {
 	position: relative;
-	width: 100px;
-	margin-left: -50px;
+	width: 150px;
+	margin-left: -75px;
 	left: 50%;
-	margin-top: 50px;
+	margin-top: 75px;
 
 	@media (--w768) {
 		position: absolute;
