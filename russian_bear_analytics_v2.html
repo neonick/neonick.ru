@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Russian Bear Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0a0a0f;--card:#12121a;--border:#1e1e2e;--text:#e2e2e8;--text-dim:#6b6b80;--text-muted:#44445a;--amber:#f59e0b;--blue:#3b82f6;--green:#10b981;--purple:#8b5cf6;--pink:#ec4899;--cyan:#06b6d4;--red:#ef4444}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;line-height:1.5}
+
+.header{padding:24px 32px 0;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--card) 0%,var(--bg) 100%)}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+.header h1{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;background:linear-gradient(135deg,var(--amber),var(--text));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.02em}
+.header-sub{font-size:13px;color:var(--text-dim);margin-top:4px}
+.date-badge{display:flex;flex-direction:column;gap:2px;padding:10px 14px;background:rgba(107,107,128,0.08);border-radius:10px;border:1px solid rgba(107,107,128,0.15)}
+.date-badge .label{font-size:10px;color:var(--text-dim)}
+.date-badge .val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--text-dim)}
+
+/* Tabs — underline style */
+.tabs{display:flex;gap:0;overflow-x:auto}
+.tab{padding:12px 20px;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;transition:all 0.2s;background:transparent;color:var(--text-dim);white-space:nowrap;border-bottom:2px solid transparent;position:relative}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--amber);border-bottom-color:var(--amber)}
+
+.content{padding:28px 32px 48px;max-width:1200px;margin:0 auto}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+.grid{display:grid;gap:14px;margin-bottom:32px}
+.grid-6{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))}
+.grid-2{grid-template-columns:1fr 1fr;gap:24px}
+.grid-1{grid-template-columns:1fr;gap:14px}
+@media(max-width:860px){.grid-2{grid-template-columns:1fr}}
+
+/* KPI cards — smaller */
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden}
+.kpi .bar{position:absolute;top:0;left:0;right:0;height:3px}
+.kpi .kpi-label{font-size:12px;color:var(--text-dim)}
+.kpi .kpi-value{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.kpi .kpi-sub{font-size:11px;color:var(--text-dim)}
+
+.stitle{margin-bottom:18px;margin-top:8px}
+.stitle h2{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.01em}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px}
+.mb-28{margin-bottom:28px}.mb-32{margin-bottom:32px}
+
+.chart-box{position:relative;width:100%}
+
+.mini{display:inline-flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:10px;background:rgba(107,107,128,0.08);border:1px solid rgba(107,107,128,0.15)}
+.mini .ml{font-size:10px;color:var(--text-dim)}.mini .mv{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600}
+
+.progress{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.progress-fill{height:100%;border-radius:4px}
+
+.channel{margin-bottom:16px}.channel:last-of-type{margin-bottom:0}
+.ch-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ch-name{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600}
+.ch-rev{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700}
+.ch-minis{display:flex;gap:10px;flex-wrap:wrap}
+
+.insight{border-radius:14px;padding:18px 22px;display:flex;gap:14px;align-items:flex-start}
+.insight .it{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;margin-bottom:6px}
+.insight .ix{font-size:13px;color:var(--text-dim);line-height:1.6}
+.insight .num{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;flex-shrink:0;margin-top:2px;width:28px;text-align:center}
+.i-info{background:rgba(59,130,246,0.03);border:1px solid rgba(59,130,246,0.19)}.i-info .it,.i-info .num{color:var(--blue)}
+.i-warn{background:rgba(245,158,11,0.03);border:1px solid rgba(245,158,11,0.19)}.i-warn .it,.i-warn .num{color:var(--amber)}
+.i-ok{background:rgba(16,185,129,0.03);border:1px solid rgba(16,185,129,0.19)}.i-ok .it,.i-ok .num{color:var(--green)}
+.i-alert{background:rgba(239,68,68,0.03);border:1px solid rgba(239,68,68,0.19)}.i-alert .it,.i-alert .num{color:var(--red)}
+.i-purple{background:rgba(139,92,246,0.03);border:1px solid rgba(139,92,246,0.19)}.i-purple .it,.i-purple .num{color:var(--purple)}
+.i-cyan{background:rgba(6,182,212,0.03);border:1px solid rgba(6,182,212,0.19)}.i-cyan .it,.i-cyan .num{color:var(--cyan)}
+.i-pink{background:rgba(236,72,153,0.03);border:1px solid rgba(236,72,153,0.19)}.i-pink .it,.i-pink .num{color:var(--pink)}
+
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 12px;text-align:left;color:var(--text-dim);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid rgba(30,30,46,0.13)}
+.mono{font-family:'JetBrains Mono',monospace}.fw6{font-weight:600}
+.ca{color:var(--amber)}.cb{color:var(--blue)}.cg{color:var(--green)}.cp{color:var(--purple)}.cd{color:var(--text-dim)}.cm{color:var(--text-muted)}.cr{color:var(--red)}.cc{color:var(--cyan)}.cpk{color:var(--pink)}
+
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block;cursor:help;position:relative}
+.badge .tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:11px;font-weight:400;color:var(--text-dim);white-space:nowrap;z-index:10;line-height:1.5;box-shadow:0 4px 20px rgba(0,0,0,0.5)}
+.badge:hover .tip{display:block}
+
+.pie-legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:12px;font-size:12px}
+.pie-dot{width:10px;height:10px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:4px}
+.note{margin-top:10px;font-size:12px;color:var(--text-dim)}.note-c{text-align:center}
+
+.cpr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(30,30,46,0.13)}.cpr:last-of-type{border-bottom:none}
+.cpb{display:flex;align-items:center;gap:8px}.cpf{height:6px;background:var(--purple);border-radius:3px}
+.cpv{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--purple);font-weight:600;min-width:30px;text-align:right}
+.part-tip{position:relative;cursor:help;border-bottom:1px dotted var(--text-muted)}.part-tip .pt{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:400;color:var(--text-dim);white-space:nowrap;z-index:10;box-shadow:0 4px 20px rgba(0,0,0,0.5)}.part-tip:hover .pt{display:block}
+
+.cond{margin-bottom:20px}.cond:last-child{margin-bottom:0}
+.cond-h{display:flex;justify-content:space-between;margin-bottom:6px}
+.cond-n{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600}
+.cond-p{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600}
+.cond-bar{height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:8px}
+.cond-f{height:100%;border-radius:5px}.cond-m{display:flex;gap:12px}
+
+/* Category search */
+.cat-search{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;margin-bottom:16px;outline:none}
+.cat-search:focus{border-color:var(--amber)}
+.cat-pct-bar{display:inline-block;height:6px;border-radius:3px;background:var(--amber);vertical-align:middle;margin-right:6px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div><h1>Russian Bear Analytics</h1><p class="header-sub">BricksApp · Апрель 2025 — Февраль 2026</p></div>
+    <div class="date-badge"><span class="label">Сегодня</span><span class="val">16 фев 2026</span></div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="overview">Обзор</button>
+    <button class="tab" data-tab="dynamics">Динамика</button>
+    <button class="tab" data-tab="buyers">Покупатели</button>
+    <button class="tab" data-tab="products">Товары</button>
+    <button class="tab" data-tab="categories">Категории</button>
+    <button class="tab" data-tab="patterns">Паттерны</button>
+    <button class="tab" data-tab="insights">Инсайты</button>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ======== OVERVIEW ======== -->
+<div class="tab-panel active" id="panel-overview">
+  <div class="stitle"><h2>Ключевые показатели</h2></div>
+  <div class="grid grid-6 mb-32">
+    <div class="kpi"><div class="bar" style="background:linear-gradient(90deg,var(--amber),transparent)"></div><div class="kpi-label">Общая выручка</div><div class="kpi-value">1 027 451 ₽</div><div class="kpi-sub">за всё время</div></div>
+    <div class="kpi"><div class="bar" style="background:linear-gradient(90deg,var(--blue),transparent)"></div><div class="kpi-label">Заказов</div><div class="kpi-value">657</div><div class="kpi-sub">45 463 штук продано</div></div>
+    <div class="kpi"><div class="bar" style="background:linear-gradient(90deg,var(--green),transparent)"></div><div class="kpi-label">Средний чек</div><div class="kpi-value">1 564 ₽</div></div>
+    <div class="kpi"><div class="bar" style="background:linear-gradient(90deg,var(--purple),transparent)"></div><div class="kpi-label">Покупателей</div><div class="kpi-value">354</div><div class="kpi-sub">125 повторных (35,3%)</div></div>
+    <div class="kpi"><div class="bar" style="background:linear-gradient(90deg,var(--pink),transparent)"></div><div class="kpi-label">Повторные → выручка</div><div class="kpi-value">73,3%</div><div class="kpi-sub">753 489 ₽</div></div>
+    <div class="kpi"><div class="bar" style="background:linear-gradient(90deg,var(--cyan),transparent)"></div><div class="kpi-label">Прогноз февраля</div><div class="kpi-value">73 339 ₽</div><div class="kpi-sub">Факт: 41 908 ₽ за 16 дн.</div></div>
+  </div>
+
+  <div class="grid grid-2 mb-32">
+    <div>
+      <div class="stitle"><h2>Структура выручки</h2></div>
+      <div class="card">
+        <div class="chart-box" style="height:260px"><canvas id="pieRevType"></canvas></div>
+        <div class="pie-legend">
+          <span><span class="pie-dot" style="background:var(--amber)"></span><span class="cd">Детали </span><span class="ca mono fw6">48,7%</span></span>
+          <span><span class="pie-dot" style="background:var(--pink)"></span><span class="cd">Части минифигурок </span><span class="cpk mono fw6">16,0%</span></span>
+          <span><span class="pie-dot" style="background:var(--blue)"></span><span class="cd">Минифигурки </span><span class="cb mono fw6">32,6%</span></span>
+          <span><span class="pie-dot" style="background:var(--green)"></span><span class="cd">Наборы </span><span class="cg mono fw6">2,1%</span></span>
+          <span><span class="pie-dot" style="background:var(--purple)"></span><span class="cd">Инструкции </span><span class="cp mono fw6">0,5%</span></span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="stitle"><h2>Способы доставки и оплаты</h2></div>
+      <div class="card">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em">Доставка</div>
+        <div id="shipBlock"></div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text-dim);margin:16px 0 10px;text-transform:uppercase;letter-spacing:0.05em">Оплата</div>
+        <div id="payBlock"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== DYNAMICS ======== -->
+<div class="tab-panel" id="panel-dynamics">
+  <div class="stitle"><h2>Выручка по месяцам</h2></div>
+  <div class="card mb-28"><div class="chart-box" style="height:300px"><canvas id="chartRevMonth"></canvas></div></div>
+  <div class="stitle"><h2>Заказы и новые покупатели</h2></div>
+  <div class="card mb-28"><div class="chart-box" style="height:280px"><canvas id="chartOrdersBuyers"></canvas></div></div>
+  <div class="stitle"><h2>Средний чек по месяцам</h2></div>
+  <div class="card mb-28"><div class="chart-box" style="height:260px"><canvas id="chartAvgCheck"></canvas></div></div>
+  <div class="stitle"><h2>Рост месяц-к-месяцу</h2></div>
+  <div class="card"><div class="chart-box" style="height:240px"><canvas id="chartMoM"></canvas></div><div class="note note-c">Июн — Авг (+1210%) исключён: скачок после паузы в июле</div></div>
+</div>
+
+<!-- ======== BUYERS ======== -->
+<div class="tab-panel" id="panel-buyers">
+  <div class="stitle"><h2>Топ-20 покупателей</h2></div>
+  <div class="card mb-28 tw"><table><thead><tr><th>#</th><th>Покупатель</th><th>Тип</th><th>Заказы</th><th>Выручка</th><th>Штук</th><th>Ср. чек</th><th>Первый</th><th>Последний</th></tr></thead><tbody id="buyersTable"></tbody></table></div>
+
+  <div class="grid grid-2 mb-28">
+    <div>
+      <div class="stitle"><h2>Повторные vs Разовые (кол-во)</h2></div>
+      <div class="card">
+        <div class="chart-box" style="height:220px"><canvas id="pieBuyerCount"></canvas></div>
+        <div class="pie-legend"><span class="cd">Разовые: 229 (64,7%)</span><span class="cg">Повторные: 125 (35,3%)</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="stitle"><h2>Повторные vs Разовые (выручка)</h2></div>
+      <div class="card">
+        <div class="chart-box" style="height:220px"><canvas id="pieBuyerRev"></canvas></div>
+        <div class="pie-legend"><span class="cd">Разовые: 273 962 ₽ (26,7%)</span><span class="ca">Повторные: 753 489 ₽ (73,3%)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stitle"><h2>Когорты: новые покупатели</h2></div>
+  <div class="card mb-28"><div class="chart-box" style="height:240px"><canvas id="chartCohort"></canvas></div></div>
+
+  <div class="stitle"><h2>Ключевые покупатели</h2></div>
+  <div class="grid grid-2" style="gap:16px">
+    <div class="insight i-alert"><div><div class="it">shop-device — 69 271 ₽ (4 заказа)</div><div class="ix">Магазин-конкурент. Средний чек 17 318 ₽. Покупает минифигурки, оружие и головные уборы для перепродажи. Топ-категории: Animal Skeletal, Headgear Accessory, Weapon. Клиент с сен 2025.</div></div></div>
+    <div class="insight i-info"><div><div class="it">brick stone — 56 452 ₽ (4 заказа)</div><div class="ix">MOC-строитель. 1 069 деталей, средний чек 14 113 ₽. Покупает Hinge/Turntable, Footwear, Accessories. Клиент с июн 2025, последний заказ — янв 2026.</div></div></div>
+    <div class="insight i-warn"><div><div class="it">Йорн Парсиль — 33 421 ₽ (5 заказов)</div><div class="ix">Коллекционер оружия и аксессуаров. Топ: Weapon (7 550 ₽), Headgear Accessory (6 510 ₽), Large Figure Head (2 900 ₽). Клиент с авг 2025.</div></div></div>
+    <div class="insight i-ok"><div><div class="it">m.m.72 — 28 625 ₽ (26 заказов!)</div><div class="ix">Самый лояльный покупатель. 4 846 деталей. Покупает растения (5 219 ₽), Technic Axle, пластины. Клиент с мая 2025, заказывает стабильно каждый месяц.</div></div></div>
+    <div class="insight i-purple"><div><div class="it">n3onov.m — 25 658 ₽ (2 заказа)</div><div class="ix">Крупный оптовик. 440 деталей, средний чек 12 829 ₽. Топ: Headgear Accessory (7 380 ₽), Body Wear (3 172 ₽), Weapon. Пришёл в ноя 2025.</div></div></div>
+    <div class="insight i-cyan"><div><div class="it">evg_go — 23 846 ₽ (11 заказов)</div><div class="ix">VIP. 296 деталей. Покупает оружие (4 080 ₽), головы (3 980 ₽), Hinge/Turntable. Один из первых клиентов — с апр 2025, активен до сих пор.</div></div></div>
+    <div class="insight i-info"><div><div class="it">dmuodin — 22 936 ₽ (11 заказов)</div><div class="ix">VIP, MOC-строитель. 1 764 детали. Покупает Hinge/Turntable, Brick Modified, Hair Combo. Клиент с авг 2025, заказывает регулярно.</div></div></div>
+    <div class="insight i-warn"><div><div class="it">kauha — 21 024 ₽ (2 заказа)</div><div class="ix">Крупный MOC-заказ. 1 909 деталей за 2 визита, средний чек 10 512 ₽. Покупал растения, животных, торсы. Последний заказ — авг 2025, возможно ушёл.</div></div></div>
+    <div class="insight i-ok"><div><div class="it">korpusovdenis — 19 861 ₽ (10 заказов)</div><div class="ix">VIP. 1 262 детали. Стабильно покупает головы (3 075 ₽), торсы (2 890 ₽), Hinge/Turntable. Клиент с мая 2025 по янв 2026.</div></div></div>
+    <div class="insight i-pink"><div><div class="it">Екатерина — 18 469 ₽ (2 заказа)</div><div class="ix">Крупный коллекционер. 547 деталей. Топ: Modified Head (5 020 ₽), Dragon (1 860 ₽), Hair Accessory. Была активна авг-ноя 2025.</div></div></div>
+  </div>
+</div>
+
+<!-- ======== PRODUCTS ======== -->
+<div class="tab-panel" id="panel-products">
+  <div class="stitle"><h2>Топ-20 деталей (по уникальному ID, все цвета)</h2></div>
+  <div class="card mb-28 tw">
+    <table><thead><tr><th>#</th><th>ID детали</th><th>Заказов</th><th>Продано шт.</th><th>Выручка</th><th>Цветов</th></tr></thead><tbody id="itemsIdTable"></tbody></table>
+    <div class="note">970c00 — ноги минифигурок — лидер спроса в 28 цветах. 3023 (1x2 plate) — самая популярная пластина в 40 цветах.</div>
+  </div>
+
+  <div class="stitle"><h2>Топ-20 деталей (ID + цвет)</h2></div>
+  <div class="card mb-28 tw">
+    <table><thead><tr><th>#</th><th>Деталь</th><th>Заказов</th><th>Продано шт.</th><th>Выручка</th></tr></thead><tbody id="itemsColorTable"></tbody></table>
+  </div>
+
+  <div class="grid grid-2 mb-28">
+    <div>
+      <div class="stitle"><h2>Минифигурки: ценовые сегменты</h2></div>
+      <div class="card"><div class="chart-box" style="height:250px"><canvas id="chartMinifigSeg"></canvas></div><div class="note note-c">74,7% минифигурок продаются в диапазоне 100-500 ₽</div></div>
+    </div>
+    <div>
+      <div class="stitle"><h2>Распределение заказов по сумме</h2></div>
+      <div class="card"><div class="chart-box" style="height:250px"><canvas id="chartOrderSize"></canvas></div><div class="note note-c">Сегмент 2k-5k — основной по выручке (335 461 ₽)</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== CATEGORIES ======== -->
+<div class="tab-panel" id="panel-categories">
+  <div class="stitle"><h2>Все категории деталей</h2></div>
+  <input class="cat-search" type="text" placeholder="Поиск по названию..." id="catSearch">
+  <div class="card tw"><table><thead><tr><th>#</th><th>ID</th><th>Название</th><th>Штук</th><th>Выручка</th><th>Доля</th></tr></thead><tbody id="catTable"></tbody></table></div>
+</div>
+
+<!-- ======== PATTERNS ======== -->
+<div class="tab-panel" id="panel-patterns">
+  <div class="grid grid-2 mb-28">
+    <div>
+      <div class="stitle"><h2>Заказы по дням недели</h2></div>
+      <div class="card"><div class="chart-box" style="height:260px"><canvas id="chartDOW"></canvas></div><div class="note note-c">Вторник — пик заказов (104). Выходные не уступают будням.</div></div>
+    </div>
+    <div>
+      <div class="stitle"><h2>Заказы по часам (МСК)</h2></div>
+      <div class="card"><div class="chart-box" style="height:260px"><canvas id="chartHour"></canvas></div><div class="note note-c">Два пика: 17:00 (51) и 21:00 (49). Заказывают после работы.</div></div>
+    </div>
+  </div>
+
+  <div class="stitle"><h2>Доставка</h2></div>
+  <div class="card mb-28 tw"><table><thead><tr><th>Способ</th><th>Заказов</th><th>Выручка</th><th>Ср. чек</th></tr></thead><tbody id="shippingTable"></tbody></table></div>
+
+  <div class="grid grid-2 mb-28">
+    <div>
+      <div class="stitle"><h2>Популярные комбинации деталей</h2></div>
+      <div class="card" id="coPurchaseCard"></div>
+    </div>
+    <div>
+      <div class="stitle"><h2>Состояние товаров</h2></div>
+      <div class="card">
+        <div class="cond">
+          <div class="cond-h"><span class="cond-n">Б/У</span><span class="cond-p cb">98,5%</span></div>
+          <div class="cond-bar"><div class="cond-f" style="width:98.5%;background:var(--blue)"></div></div>
+          <div class="cond-m"><div class="mini"><span class="ml">Штук</span><span class="mv cd">45 119</span></div><div class="mini"><span class="ml">Выручка</span><span class="mv cd">977 573 ₽</span></div></div>
+        </div>
+        <div class="cond">
+          <div class="cond-h"><span class="cond-n">Новые</span><span class="cond-p cg">1,5%</span></div>
+          <div class="cond-bar"><div class="cond-f" style="width:1.5%;background:var(--green)"></div></div>
+          <div class="cond-m"><div class="mini"><span class="ml">Штук</span><span class="mv cd">344</span></div><div class="mini"><span class="ml">Выручка</span><span class="mv cd">14 099 ₽</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== INSIGHTS ======== -->
+<div class="tab-panel" id="panel-insights">
+  <div class="stitle"><h2>Ключевые находки</h2></div>
+  <div class="grid grid-2 mb-28" style="gap:16px">
+    <div class="insight i-alert"><div><div class="it">Конкурент shop-device закупается у вас</div><div class="ix">shop-device — топ-1 по выручке (69 271 ₽, 6,7%). Покупает минифигурки и аксессуары для перепродажи. Ваши цены для него — оптовая база.</div></div></div>
+    <div class="insight i-ok"><div><div class="it">35% повторных дают 73% выручки</div><div class="ix">125 лояльных покупателей генерируют три четверти дохода. Каждый повторный приносит 6 028 ₽ vs 1 196 ₽ у разового — разница в 5 раз.</div></div></div>
+    <div class="insight i-ok"><div><div class="it">Январь 2026 — рекорд по заказам</div><div class="ix">123 заказа, 167 305 ₽ выручки. Переход от «мало дорогих» к «много стабильных» — здоровая динамика.</div></div></div>
+    <div class="insight i-info"><div><div class="it">Части минифигурок — скрытый хит (16%)</div><div class="ix">Торсы, головы, ноги и аксессуары дают 158 755 ₽ — больше, чем наборы и инструкции вместе. Это отдельная категория спроса.</div></div></div>
+    <div class="insight i-warn"><div><div class="it">Ноги минифигурок (970c00) — хит №1</div><div class="ix">105 заказов в 28 цветах. 3023 (plate 1x2) на втором месте — 103 заказа в 40 цветах. Это must-have ассортимент.</div></div></div>
+    <div class="insight i-purple"><div><div class="it">Ночные покупатели — 15% заказов</div><div class="ix">С 23:00 до 02:00 МСК оформляется ~100 заказов. Публикация новинок в 22:00 может увеличить конверсию.</div></div></div>
+    <div class="insight i-cyan"><div><div class="it">Топ-20 покупателей = 42% выручки</div><div class="ix">432 544 ₽ от 20 человек. Высокая концентрация — потеря одного крупного клиента ощутима. Нужна программа удержания.</div></div></div>
+    <div class="insight i-pink"><div><div class="it">Размер первого заказа влияет на лояльность</div><div class="ix">Покупатели с первым заказом 2000+ ₽ возвращаются в 43% случаев. С первым заказом до 500 ₽ — только 28%. Крупный первый заказ = лояльный клиент.</div></div></div>
+    <div class="insight i-info"><div><div class="it">Яндекс Доставка — самый дорогой канал</div><div class="ix">Средний чек 3 041 ₽ — в 2,6 раза выше, чем по OZON (1 177 ₽). Малый объём (26 заказов), но высокомаржинальная аудитория.</div></div></div>
+    <div class="insight i-warn"><div><div class="it">Сезонность: лето — провал, осень — рост</div><div class="ix">Июнь: 15 291 ₽. Август: 200 355 ₽. Ноя-янв — стабильный плюс. Готовьте сток к августу, не к лету.</div></div></div>
+  </div>
+
+  <div class="stitle"><h2>Рекомендации</h2></div>
+  <div class="grid grid-1" style="gap:14px">
+    <div class="insight i-alert"><div class="num">1</div><div><div class="it">Решить вопрос с shop-device</div><div class="ix">69 271 ₽ — серьёзно. Варианты: 1) оставить как оптовый канал, 2) наценка 10-15% на минифигурки от 5 шт., 3) ценовая вилка розница/опт. Блокировка = потеря 6,7% выручки.</div></div></div>
+    <div class="insight i-warn"><div class="num">2</div><div><div class="it">VIP-программа для топ-20</div><div class="ix">20 покупателей = 42% выручки. Персональные скидки 5-7%, ранний доступ к новинкам. Приоритет: m.m.72 (26 заказов), evg_go и dmuodin (по 11). Удержать kauha — последний заказ в августе.</div></div></div>
+    <div class="insight i-ok"><div class="num">3</div><div><div class="it">Пополнить 970c00, 3023, 4073, 30374</div><div class="ix">Топ-4 детали по спросу: 105, 103, 69 и 71 заказов. Это фундамент ассортимента. Дефицит любого цвета = потерянные продажи.</div></div></div>
+    <div class="insight i-info"><div class="num">4</div><div><div class="it">Вечерние публикации новинок</div><div class="ix">Пик заказов: 17:00 и 21:00. Публикуйте в Telegram-канале в 16:30-17:00 и 20:00-20:30.</div></div></div>
+    <div class="insight i-purple"><div class="num">5</div><div><div class="it">Бандлы «Детали + Минифигурка»</div><div class="ix">34,5% заказов содержат оба типа. Комплекты со скидкой 5% повысят средний чек.</div></div></div>
+    <div class="insight i-cyan"><div class="num">6</div><div><div class="it">Стимулировать первый крупный заказ</div><div class="ix">Конверсия в повторного: 43% при первом заказе от 2000 ₽ vs 28% при заказе до 500 ₽. Скидка «-10% на первый заказ от 1500 ₽» может окупиться через LTV.</div></div></div>
+    <div class="insight i-pink"><div class="num">7</div><div><div class="it">Части минифигурок — развить как отдельное направление</div><div class="ix">158 755 ₽ выручки. Торсы (74 630 ₽) и головы (53 372 ₽) — самые ходовые. Отдельный раздел или тег на площадке упростит поиск для коллекционеров.</div></div></div>
+    <div class="insight i-ok"><div class="num">8</div><div><div class="it">Подготовка к августу</div><div class="ix">Самый сильный месяц — 200 355 ₽. В 2025 это был скачок после паузы. Если подготовить сток к июлю и запустить промо, можно повторить и усилить результат.</div></div></div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+// ===== TABS =====
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    setTimeout(()=>window.dispatchEvent(new Event('resize')),60);
+  });
+});
+
+// ===== CHART DEFAULTS =====
+Chart.defaults.color='#6b6b80';Chart.defaults.borderColor='#1e1e2e';
+Chart.defaults.font.family="'Inter',sans-serif";Chart.defaults.font.size=12;
+Chart.defaults.plugins.legend.display=false;
+Chart.defaults.plugins.tooltip.backgroundColor='#12121a';
+Chart.defaults.plugins.tooltip.borderColor='#1e1e2e';
+Chart.defaults.plugins.tooltip.borderWidth=1;
+Chart.defaults.plugins.tooltip.cornerRadius=10;
+Chart.defaults.plugins.tooltip.titleFont={family:"'Inter',sans-serif",size:12};
+Chart.defaults.plugins.tooltip.bodyFont={family:"'JetBrains Mono',monospace",size:13};
+Chart.defaults.plugins.tooltip.padding=10;
+
+const fN=n=>Number(n).toLocaleString('ru-RU');
+const fK=n=>(n/1000).toFixed(0)+'k';
+const R={responsive:true,maintainAspectRatio:false};
+const G={color:'#1e1e2e'};
+
+// ===== OVERVIEW =====
+new Chart(document.getElementById('pieRevType'),{
+  type:'doughnut',
+  data:{labels:['Детали','Части минифигурок','Минифигурки','Наборы','Инструкции'],datasets:[{data:[483347,158755,323775,20990,4646],backgroundColor:['#f59e0b','#ec4899','#3b82f6','#10b981','#8b5cf6'],borderWidth:0,borderRadius:4}]},
+  options:{...R,cutout:'55%',plugins:{tooltip:{callbacks:{label:c=>fN(c.raw)+' ₽'}}}}
+});
+
+// Shipping & Payment blocks
+const shipData=[['OZON',303,356613],['Авито — Яндекс',145,302730],['Авито — ПВЗ',96,144712],['Самовывоз',41,72505],['Авито — Почта',34,47694],['Яндекс Доставка',26,79059],['Почта России',12,24137]];
+const totalShipRev=shipData.reduce((s,r)=>s+r[2],0);
+const sb=document.getElementById('shipBlock');
+shipData.forEach(s=>{
+  const pct=(s[2]/totalShipRev*100).toFixed(1);
+  sb.innerHTML+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px"><span>${s[0]}</span><div style="display:flex;align-items:center;gap:10px"><span class="mono cd">${s[1]}</span><span class="mono fw6 ca" style="min-width:80px;text-align:right">${fN(s[2])} ₽</span><span class="mono cd" style="min-width:40px;text-align:right;font-size:11px">${pct}%</span></div></div>`;
+});
+
+const payData=[['Перевод (предоплата)',470,722093],['В объявлении Авито',142,210444],['Перевод (самовывоз)',25,36159],['Наличные',20,58755]];
+const totalPayRev=payData.reduce((s,r)=>s+r[2],0);
+const pb=document.getElementById('payBlock');
+payData.forEach(p=>{
+  const pct=(p[2]/totalPayRev*100).toFixed(1);
+  pb.innerHTML+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px"><span>${p[0]}</span><div style="display:flex;align-items:center;gap:10px"><span class="mono cd">${p[1]}</span><span class="mono fw6 ca" style="min-width:80px;text-align:right">${fN(p[2])} ₽</span><span class="mono cd" style="min-width:40px;text-align:right;font-size:11px">${pct}%</span></div></div>`;
+});
+
+// ===== DYNAMICS =====
+const M=['Апр 25','Май 25','Июн 25','Авг 25','Сен 25','Окт 25','Ноя 25','Дек 25','Янв 26','Фев 26*'];
+new Chart(document.getElementById('chartRevMonth'),{type:'line',data:{labels:M,datasets:[{data:[33235,90179,15291,200355,96779,91748,133938,156713,167305,41908],borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.1)',fill:true,tension:0.3,pointRadius:5,pointBackgroundColor:'#f59e0b',pointBorderWidth:0,borderWidth:2.5}]},options:{...R,scales:{y:{ticks:{callback:v=>fK(v)},grid:G},x:{grid:G}},plugins:{tooltip:{callbacks:{label:c=>fN(c.raw)+' ₽'}}}}});
+new Chart(document.getElementById('chartOrdersBuyers'),{type:'bar',data:{labels:M,datasets:[{label:'Заказы',data:[16,55,6,86,70,85,84,96,123,36],backgroundColor:'#3b82f6',borderRadius:4},{label:'Новые покупатели',data:[12,45,4,58,38,40,39,37,62,19],backgroundColor:'#10b981',borderRadius:4}]},options:{...R,scales:{y:{grid:G},x:{grid:G}},plugins:{legend:{display:true,labels:{color:'#6b6b80',font:{family:"'Inter',sans-serif",size:12}}}}}});
+new Chart(document.getElementById('chartAvgCheck'),{type:'line',data:{labels:M,datasets:[{data:[2077,1640,2548,2330,1383,1079,1595,1632,1360,1164],borderColor:'#8b5cf6',backgroundColor:'transparent',tension:0.3,pointRadius:5,pointBackgroundColor:'#8b5cf6',pointBorderWidth:0,borderWidth:2.5}]},options:{...R,scales:{y:{min:0,max:3000,grid:G},x:{grid:G}},plugins:{tooltip:{callbacks:{label:c=>fN(c.raw)+' ₽'}}}}});
+const momV=[171.3,-83.0,-51.7,-5.2,46.0,17.0,6.8];
+new Chart(document.getElementById('chartMoM'),{type:'bar',data:{labels:['Апр-Май','Май-Июн','Авг-Сен','Сен-Окт','Окт-Ноя','Ноя-Дек','Дек-Янв'],datasets:[{data:momV,backgroundColor:momV.map(v=>v>=0?'#10b981':'#ef4444'),borderRadius:4}]},options:{...R,scales:{y:{ticks:{callback:v=>v+'%'},grid:G},x:{grid:G}},plugins:{tooltip:{callbacks:{label:c=>(c.raw>0?'+':'')+c.raw.toFixed(1)+'%'}}}}});
+
+// ===== BUYERS =====
+const tipMap={
+  'VIP':'5+ заказов и выручка > 10 000 ₽',
+  'MOC-строитель':'50+ деталей и 3+ заказа',
+  'Коллекционер':'> 50% позиций — минифигурки',
+  'Крупный':'Средний чек > 2 000 ₽',
+  'Перекупщик':'Ср. чек > 3 000 ₽ + скидки',
+  'Магазин':'Перепродажа (ручная метка)',
+  'Обычный':'Не подошёл под другие критерии'
+};
+const colorMap={'VIP':'--amber','MOC-строитель':'--blue','Коллекционер':'--pink','Крупный':'--purple','Перекупщик':'--cyan','Магазин':'--red','Обычный':'--text-dim'};
+const BD=[
+  {n:'shop-device',o:4,r:69271,q:192,a:17318,t:'Магазин',f:'20.09.2025',l:'28.01.2026'},
+  {n:'brick stone',o:4,r:56452,q:1069,a:14113,t:'MOC-строитель',f:'03.06.2025',l:'21.01.2026'},
+  {n:'Йорн Парсиль',o:5,r:33421,q:514,a:6684,t:'VIP',f:'08.08.2025',l:'07.01.2026'},
+  {n:'m.m.72',o:26,r:28625,q:4846,a:1101,t:'VIP',f:'19.05.2025',l:'10.02.2026'},
+  {n:'n3onov.m',o:2,r:25658,q:440,a:12829,t:'Крупный',f:'18.11.2025',l:'19.01.2026'},
+  {n:'evg_go',o:11,r:23846,q:296,a:2168,t:'VIP',f:'20.04.2025',l:'31.01.2026'},
+  {n:'dmuodin',o:11,r:22936,q:1764,a:2085,t:'VIP',f:'24.08.2025',l:'28.01.2026'},
+  {n:'kauha',o:2,r:21024,q:1909,a:10512,t:'Крупный',f:'27.04.2025',l:'21.08.2025'},
+  {n:'korpusovdenis',o:10,r:19861,q:1262,a:1986,t:'VIP',f:'25.05.2025',l:'22.01.2026'},
+  {n:'Екатерина',o:2,r:18469,q:547,a:9234,t:'Крупный',f:'19.08.2025',l:'13.11.2025'},
+  {n:'Neo',o:6,r:15995,q:318,a:2666,t:'VIP',f:'04.08.2025',l:'24.01.2026'},
+  {n:'timkaa525',o:3,r:12658,q:83,a:4219,t:'MOC-строитель',f:'16.05.2025',l:'19.01.2026'},
+  {n:'katerinamu',o:2,r:11826,q:878,a:5913,t:'Крупный',f:'10.05.2025',l:'19.05.2025'},
+  {n:'danyakosh',o:3,r:11345,q:71,a:3782,t:'MOC-строитель',f:'13.05.2025',l:'01.02.2026'},
+  {n:'olya.b.chernysheva',o:7,r:11242,q:550,a:1606,t:'VIP',f:'20.05.2025',l:'23.01.2026'},
+  {n:'kndrv',o:5,r:10831,q:76,a:2166,t:'VIP',f:'07.05.2025',l:'21.01.2026'},
+  {n:'dimixer',o:2,r:10397,q:1926,a:5199,t:'Крупный',f:'18.05.2025',l:'30.05.2025'},
+  {n:'Brick Cemetery',o:8,r:9725,q:28,a:1216,t:'Обычный',f:'08.05.2025',l:'28.01.2026'},
+  {n:'Денис Беляков',o:2,r:9719,q:65,a:4859,t:'Крупный',f:'09.09.2025',l:'20.09.2025'},
+  {n:'vadimnovi',o:4,r:9243,q:846,a:2311,t:'MOC-строитель',f:'02.06.2025',l:'10.12.2025'},
+];
+const bT=document.getElementById('buyersTable');
+BD.forEach((b,i)=>{
+  const cv=colorMap[b.t]||'--text-dim';
+  const tip=tipMap[b.t]||'';
+  bT.innerHTML+=`<tr><td class="mono fw6 cm">${i+1}</td><td class="fw6">${b.n}</td><td><span class="badge" style="color:var(${cv});background:color-mix(in srgb,var(${cv}) 12%,transparent);border:1px solid color-mix(in srgb,var(${cv}) 30%,transparent)">${b.t}<span class="tip">${tip}</span></span></td><td class="mono">${b.o}</td><td class="mono fw6 ca">${fN(b.r)} ₽</td><td class="mono cd">${fN(b.q)}</td><td class="mono cd">${fN(b.a)} ₽</td><td class="mono cd" style="font-size:11px">${b.f}</td><td class="mono cd" style="font-size:11px">${b.l}</td></tr>`;
+});
+
+new Chart(document.getElementById('pieBuyerCount'),{type:'doughnut',data:{labels:['Разовые','Повторные'],datasets:[{data:[229,125],backgroundColor:['#44445a','#10b981'],borderWidth:0}]},options:{...R,cutout:'55%',plugins:{tooltip:{callbacks:{label:c=>c.raw+' чел.'}}}}});
+new Chart(document.getElementById('pieBuyerRev'),{type:'doughnut',data:{labels:['Разовые','Повторные'],datasets:[{data:[273962,753489],backgroundColor:['#44445a','#f59e0b'],borderWidth:0}]},options:{...R,cutout:'55%',plugins:{tooltip:{callbacks:{label:c=>fN(c.raw)+' ₽'}}}}});
+new Chart(document.getElementById('chartCohort'),{type:'bar',data:{labels:M,datasets:[{data:[12,45,4,58,38,40,39,37,62,19],backgroundColor:'#06b6d4',borderRadius:4}]},options:{...R,scales:{y:{grid:G},x:{grid:G}}}});
+
+// ===== PRODUCTS =====
+const topId=[
+  {n:'970c00',o:105,q:445,r:11533,c:28},{n:'3023',o:103,q:984,r:3020,c:40},
+  {n:'3069',o:73,q:474,r:2052,c:33},{n:'30374',o:71,q:287,r:2909,c:14},
+  {n:'4073',o:69,q:1462,r:2856,c:43},{n:'3024',o:57,q:387,r:1258,c:36},
+  {n:'3062',o:56,q:324,r:1025,c:26},{n:'3710',o:56,q:443,r:1405,c:26},
+  {n:'2431',o:52,q:235,r:1355,c:22},{n:'3020',o:52,q:492,r:1696,c:25},
+  {n:'3004',o:48,q:445,r:1591,c:25},{n:'3005',o:47,q:454,r:1641,c:27},
+  {n:'3022',o:45,q:295,r:796,c:22},{n:'3795',o:44,q:262,r:1157,c:22},
+  {n:'3021',o:42,q:341,r:1155,c:20},{n:'15573',o:41,q:327,r:1077,c:21},
+  {n:'98138',o:41,q:357,r:1656,c:24},{n:'3010',o:41,q:299,r:1868,c:20},
+  {n:'3003',o:39,q:274,r:1028,c:22},{n:'3666',o:39,q:212,r:934,c:23},
+];
+const iT1=document.getElementById('itemsIdTable');
+topId.forEach((x,i)=>{iT1.innerHTML+=`<tr><td class="mono cm">${i+1}</td><td class="mono fw6">${x.n}</td><td class="mono fw6 cb">${x.o}</td><td class="mono cd">${fN(x.q)}</td><td class="mono ca">${fN(x.r)} ₽</td><td class="mono cp">${x.c}</td></tr>`;});
+
+const COLOR_NAMES={1:'White',5:'Red',7:'Blue',11:'Black',15:'White',17:'Brown',63:'Dark Brown',69:'Dark Purple',85:'Dark Bluish Gray',86:'Light Bluish Gray',88:'Reddish Brown',3:'Yellow',12:'Trans-Clear',67:'Metallic Gold'};
+const topColor=[
+  {n:'970c00',c:'11',o:27,q:100,r:2000},{n:'3023',c:'11',o:18,q:192,r:576},
+  {n:'30374',c:'17',o:17,q:53,r:930},{n:'3023',c:'86',o:17,q:148,r:444},
+  {n:'970c00',c:'85',o:17,q:52,r:1040},{n:'30374',c:'15',o:16,q:37,r:316},
+  {n:'970c00',c:'63',o:15,q:41,r:820},{n:'970c00',c:'5',o:15,q:28,r:560},
+  {n:'3020',c:'85',o:14,q:78,r:234},{n:'970c00',c:'7',o:13,q:49,r:735},
+  {n:'3626pb0633',c:'3',o:13,q:16,r:400},{n:'3069',c:'1',o:12,q:62,r:248},
+  {n:'970c00',c:'69',o:12,q:16,r:608},{n:'58247',c:'11',o:12,q:89,r:1780},
+  {n:'970c00',c:'1',o:12,q:25,r:875},{n:'4073',c:'11',o:11,q:80,r:160},
+  {n:'64567',c:'67',o:11,q:37,r:408},{n:'3069',c:'12',o:11,q:36,r:288},
+  {n:'4073',c:'15',o:10,q:100,r:150},{n:'63965',c:'88',o:10,q:32,r:128},
+];
+const iT2=document.getElementById('itemsColorTable');
+topColor.forEach((x,i)=>{
+  const cn=COLOR_NAMES[x.c]||('c'+x.c);
+  iT2.innerHTML+=`<tr><td class="mono cm">${i+1}</td><td class="mono fw6" style="font-size:12px">${x.n} <span class="cd">(${cn})</span></td><td class="mono fw6 cb">${x.o}</td><td class="mono cd">${fN(x.q)}</td><td class="mono ca">${fN(x.r)} ₽</td></tr>`;
+});
+
+new Chart(document.getElementById('chartMinifigSeg'),{type:'bar',data:{labels:['<100 ₽','100-500 ₽','500-1k ₽','1k-2k ₽','2000+ ₽'],datasets:[{data:[68,630,94,33,19],backgroundColor:'#ec4899',borderRadius:4}]},options:{...R,indexAxis:'y',scales:{x:{grid:G},y:{grid:{display:false}}},plugins:{tooltip:{callbacks:{label:c=>c.raw+' шт.'}}}}});
+new Chart(document.getElementById('chartOrderSize'),{type:'bar',data:{labels:['<300','300-500','500-1k','1k-2k','2k-5k','5k+'],datasets:[{data:[100,79,201,132,116,29],backgroundColor:'#3b82f6',borderRadius:4}]},options:{...R,scales:{y:{grid:G},x:{grid:G}}}});
+
+// ===== CATEGORIES =====
+const CATS=[
+[1097,'Minifig, Torso Assembly',1043,74630],[65,'Minifig, Weapon',145,72594],[759,'Minifig, Headgear Accessory',153,59671],[238,'Minifig, Head',861,53372],[16,'Hinge, Arm and Turntable',638,46150],[142,'Minifig, Accessory',656,41052],[746,'Minifig, Head Modified',83,30720],[1098,'Minifig, Legs Assembly',588,30188],[768,'Animal, Skeletal',67,30139],[26,'Plant, Flower, Tree',4962,26774],[19,'Minifig, Body Wear',1237,22601],[789,'Large Figure Torso',10,20900],[5,'Brick, Modified',2937,19037],[67,'Minifig, Weapon Bow',151,15946],[20,'Minifig, Footwear',819,15441],[847,'Tile, Round Modified',228,14479],[484,'Slope, Decorated',498,13262],[9,'Electric',25,12280],[147,'Minifig, Hair Accessory',97,11462],[18,'Lever and Door Handle',944,10043],[689,'Minifig, Torso Special',16,9280],[37,'Technic, Axle',1517,9097],[787,'Large Figure Arm/Leg',42,8718],[46,'Technic, Liftarm',1070,8660],[606,'Animal, Dog',70,8628],[790,'Large Figure Head/Body',16,8555],[27,'Plate',2476,8318],[137,'Technic, Pin Connector',1118,8087],[31,'Slope',1728,7336],[438,'Slope, Inverted',1085,7268],[39,'Technic, Brick',424,7064],[28,'Plate, Modified',2502,6791],[135,'Tile, Round',656,6672],[418,'Minifig, Hair Combo',95,6626],[868,'Minifig, Hair Ponytail',30,6313],[7,'Container',1088,6216],[133,'Plate, Special',1071,6009],[38,'Technic, Beam',967,5691],[1128,'Minifig, Head Masked',29,5540],[34,'String, Cord and Tube',14,5535],[636,'Technic, Shock Absorber',159,5196],[771,'Plate, Rounded',142,5148],[920,'Animal, Dragon',23,5125],[36,'Support',451,4910],[134,'Tile, Modified',977,4474],[8,'Door and Window',717,4189],[548,'Animal, Horse',9,4030],[974,'Large Figure Weapon',3,3735],[943,'Minifig, Head with Hair',54,3723],[801,'Minifig, Hair+Hat Combo',22,3670],[25,'Panel',287,3667],[975,'Large Figure Shield',2,3600],[148,'Technic, Panel',427,3229],[136,'Technic, Axle Connector',170,3207],[976,'Large Figure Armor',11,3120],[117,'Plate, Round',705,3090],[583,'Tile, Inverted',453,3049],[532,'Brick, Arch',266,2977],[1116,'Minifig, Utensil',67,2974],[43,'Technic, Gear',165,2949],[817,'Animal, Whale',4,2900],[91,'Bar',354,2738],[99,'Hose',206,2732],[6,'Brick, Round and Cone',283,2678],[138,'Arch',421,2672],[167,'Minifig, Headgear Access.',27,2610],[1118,'Animal, Elephant',15,2600],[605,'Animal, Cat',3,2600],[804,'Minifig, Headgear Helmet',8,2561],[878,'Animal, Scorpion',5,2525],[463,'Animal, Dinosaur',1,2500],[870,'Large Figure Body Armor',1,2500],[749,'Panel, Decorated',156,2483],[778,'Minifig, Plume Feather',149,2483],[4,'Brick',682,2428],[850,'Minifig, Head Alien',13,2405],[22,'Minifig, Tail or Wing',508,2370],[569,'Container, Barrel',44,2186],[227,'Turntable',10,2155],[860,'Large Figure Body',2,2150],[913,'Minifig, Torso Decor',41,2005],[12,'Electric, Wire',55,1955],[733,'Animal, Spider',13,1955],[121,'Animal',4,1900],[971,'Container, Chest Lid',7,1888],[139,'Brick, Round Corner',566,1840],[273,'Tap',64,1821],[876,'Animal, Owl',5,1780],[42,'Technic, Connector',233,1778],[542,'Technic, Flex Cable',18,1710],[175,'Hinge, Panel',199,1649],[113,'Cloth',104,1623],[732,'Animal, Snake',3,1600],[916,'Minifig, Hat',48,1568],[1166,'Panel, Corner',27,1560],[917,'Minifig, Helmet Visor',37,1546],[32,'Slope, Curved',348,1513],[573,'Boat Hull',2,1500],[978,'Large Figure Accessory',13,1490],[994,'Technic, Suspension',122,1450],[579,'Plate, Flag Angled',26,1423],[33,'Staircase',78,1421],[991,'Technic, Gear Worm',68,1413],[141,'Cylinder and Cone',27,1412],[390,'Minifig, Plume Dragon',9,1320],[115,'Fence and Railing',64,1305],[528,'Windscreen',18,1295],[842,'Minifig, Head Dual',8,1225],[105,'Minifig, Plume',67,1225],[145,'Propeller',32,1207],[11,'Electric, Motor',51,1165],[843,'Minifig, Crown',6,1160],[124,'Animal, Water',10,1155],[77,'Vehicle, Base',82,1147],[21,'Minifig, Shield',282,1134],[420,'Container, Chest',8,1100],[485,'Spring',12,1100],[914,'Minifig, Legs Decor',29,1095],[231,'Door Slide',13,1040],[775,'Tile, Round Decorated',85,1032],[146,'Vehicle, Engine',10,1005],[116,'Minifig, Cape',123,1003],[721,'Animal, Bear',1,1000]
+];
+const totalCatRev=CATS.reduce((s,c)=>s+c[3],0);
+const maxCatPct=CATS[0][3]/totalCatRev*100;
+const cT=document.getElementById('catTable');
+let catRows='';
+CATS.forEach((c,i)=>{
+  const pct=(c[3]/totalCatRev*100);
+  const barW=Math.max(2,pct/maxCatPct*100);
+  catRows+=`<tr data-name="${c[1].toLowerCase()}"><td class="mono cm">${i+1}</td><td class="mono cd">${c[0]}</td><td class="fw6" style="font-size:12px">${c[1]}</td><td class="mono cd">${fN(c[2])}</td><td class="mono ca">${fN(c[3])} ₽</td><td><span class="cat-pct-bar" style="width:${barW}%"></span><span class="mono cd" style="font-size:11px">${pct.toFixed(1)}%</span></td></tr>`;
+});
+cT.innerHTML=catRows;
+
+document.getElementById('catSearch').addEventListener('input',function(){
+  const q=this.value.toLowerCase();
+  document.querySelectorAll('#catTable tr').forEach(r=>{
+    r.style.display=r.dataset.name.includes(q)?'':'none';
+  });
+});
+
+// ===== PATTERNS =====
+new Chart(document.getElementById('chartDOW'),{type:'bar',data:{labels:['Пн','Вт','Ср','Чт','Пт','Сб','Вс'],datasets:[{label:'Заказы',data:[93,104,98,99,87,90,86],backgroundColor:'#3b82f6',borderRadius:4,barPercentage:0.6,categoryPercentage:0.7}]},options:{...R,scales:{y:{beginAtZero:true,grid:G,ticks:{font:{family:"'JetBrains Mono',monospace",size:11}}},x:{grid:{display:false},ticks:{font:{family:"'Inter',sans-serif",size:12}}}}}});
+new Chart(document.getElementById('chartHour'),{type:'line',data:{labels:['00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23'],datasets:[{data:[36,24,14,8,5,4,2,7,10,19,24,41,32,36,30,41,35,51,33,44,39,49,32,41],borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,0.1)',fill:true,tension:0.3,pointRadius:0,borderWidth:2}]},options:{...R,scales:{y:{grid:G},x:{grid:G,ticks:{maxTicksLimit:12}}}}});
+
+[['OZON',303,356613,1177],['Авито — Яндекс',145,302730,2088],['Авито — ПВЗ',96,144712,1507],['Самовывоз',41,72505,1768],['Авито — Почта',34,47694,1403],['Яндекс Доставка',26,79059,3041],['Почта России',12,24137,2011]].forEach(s=>{document.getElementById('shippingTable').innerHTML+=`<tr><td class="fw6">${s[0]}</td><td class="mono cb">${fN(s[1])}</td><td class="mono ca">${fN(s[2])} ₽</td><td class="mono cg">${fN(s[3])} ₽</td></tr>`;});
+
+// Co-purchased pairs with part name tooltips
+const PART_NAMES={'3023':'Plate 1x2','4073':'Plate 1x1 Round','3020':'Plate 2x4','3024':'Plate 1x1','3069':'Tile 1x2','3710':'Plate 1x4','3022':'Plate 2x2','3021':'Plate 2x3','2431':'Tile 1x4','3004':'Brick 1x2','15573':'Plate 1x2 Modified','3005':'Brick 1x1'};
+const cpE=document.getElementById('coPurchaseCard');
+const BOLD_ID='3023';
+function partSpan(id){
+  const name=PART_NAMES[id]||id;
+  const bold=id===BOLD_ID?'font-weight:700;color:var(--text)':'';
+  return `<span class="part-tip" style="${bold}">${id}<span class="pt">${name}</span></span>`;
+}
+[['3023','4073',37],['3020','3023',37],['3023','3024',34],['3023','3069',34],['3023','3710',34],['3022','3023',34],['3021','3023',31],['2431','3023',29],['3004','3023',28],['15573','3023',27]].forEach(c=>{
+  cpE.innerHTML+=`<div class="cpr"><span style="font-size:13px" class="mono">${partSpan(c[0])} + ${partSpan(c[1])}</span><div class="cpb"><div class="cpf" style="width:${Math.max(20,c[2]/0.4)}px"></div><span class="cpv">${c[2]}</span></div></div>`;
+});
+cpE.innerHTML+=`<div class="note"><span class="fw6">3023</span> (Plate 1x2) участвует в 9 из 10 топовых комбинаций — самая «социальная» деталь</div>`;
+</script>
+</body>
+</html>
