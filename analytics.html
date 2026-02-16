@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neo Bricks Analytics</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--card:#12121a;--border:#1e1e2e;--accent:#f59e0b;--blue:#3b82f6;--green:#10b981;--red:#ef4444;--purple:#8b5cf6;--pink:#ec4899;--cyan:#06b6d4;--text:#e2e8f0;--dim:#64748b}
+*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif}
+.header{border-bottom:1px solid var(--border);padding:24px 32px;background:linear-gradient(180deg,#12121a,#0a0a0f)}.header-inner{max-width:1200px;margin:0 auto}
+.header h1{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;background:linear-gradient(135deg,var(--accent),#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline}
+.header .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px #f59e0b40;display:inline-block;margin-right:10px;vertical-align:middle}
+.header p{font-size:14px;color:var(--dim);margin:4px 0 0 18px}
+.tabs{border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:10;padding:0 32px}.tabs-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto}
+.tab{padding:14px 20px;background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);font-size:14px;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;transition:all .2s}
+.tab:hover{color:var(--text)}.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.content{max-width:1200px;margin:0 auto;padding:32px 32px 64px}.section{margin-bottom:48px}
+.section h2{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px}.section .sub{font-size:14px;color:var(--dim);margin-bottom:20px}
+.grid{display:grid;gap:16px}.grid-6{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.grid-3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}.grid-2{grid-template-columns:1fr 1fr}
+@media(max-width:768px){.grid-2{grid-template-columns:1fr}}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent)}
+.kpi.blue::before{background:var(--blue)}.kpi.green::before{background:var(--green)}.kpi.purple::before{background:var(--purple)}.kpi.cyan::before{background:var(--cyan)}.kpi.pink::before{background:var(--pink)}
+.kpi-label{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+.kpi-value{font-size:28px;font-weight:700;font-family:'Space Grotesk',sans-serif;line-height:1.1}.kpi-sub{font-size:13px;color:var(--dim);margin-top:6px}
+.kpi-trend{font-size:13px;margin-top:4px;font-family:'JetBrains Mono',monospace}.kpi-trend.up{color:var(--green)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px}.card h3{font-size:15px;font-weight:600;margin:0 0 16px 0}
+.insight{border-radius:10px;padding:14px 18px;display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.insight.info{background:#1e293b;border:1px solid #334155}.insight.warn{background:#1c1917;border:1px solid #44403c}.insight.ok{background:#052e16;border:1px solid #14532d}.insight.alert{background:#1c1917;border:1px solid #7f1d1d}
+.insight span:first-child{font-size:18px;flex-shrink:0}.insight span:last-child{font-size:14px;line-height:1.5}
+.channel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px}.channel-name{font-size:16px;font-weight:600;margin-bottom:8px}
+.channel-value{font-size:32px;font-weight:700;font-family:'Space Grotesk',sans-serif}.channel-sub{font-size:14px;color:var(--dim);margin-top:4px}.channel-tag{font-size:13px;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:14px}th{padding:12px 16px;text-align:left;color:var(--dim);font-size:12px;text-transform:uppercase;letter-spacing:.5px;font-weight:500;border-bottom:1px solid var(--border)}
+td{padding:12px 16px;border-bottom:1px solid var(--border)}.mono{font-family:'JetBrains Mono',monospace}.accent{color:var(--accent)}
+.badge{padding:3px 8px;border-radius:4px;font-size:12px}.badge-moc{background:#1e3a5f;color:var(--blue)}.badge-reseller{background:#3b1f1f;color:var(--red)}.badge-shop{background:#1f3b1f;color:var(--green)}.badge-collector{background:#2d1b4e;color:var(--purple)}.badge-default{background:#1e1e2e;color:var(--dim)}
+.growth-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}.growth-item{background:var(--bg);border-radius:8px;padding:12px 14px;text-align:center}
+.growth-item .label{font-size:12px;color:var(--dim);margin-bottom:6px}.growth-item .val{font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace}.growth-item .val.up{color:var(--green)}.growth-item .val.down{color:var(--red)}
+.stat-row{background:var(--bg);border-radius:8px;padding:14px 16px}.stat-row .stat-label{font-size:12px;color:var(--dim)}.stat-row .stat-val{font-size:22px;font-weight:700;font-family:'Space Grotesk',sans-serif}.stat-row .stat-sub{font-size:12px;color:var(--dim)}
+.big-pct{font-size:40px;font-weight:700;font-family:'Space Grotesk',sans-serif;text-align:center}
+.prio{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.prio::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.prio.p1::before{background:var(--red)}.prio.p2::before{background:var(--accent)}.prio.p3::before{background:var(--blue)}.prio.p4::before{background:var(--green)}
+.prio-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.prio-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.prio.p1 .prio-num{background:#ef444420;color:var(--red)}.prio.p2 .prio-num{background:#f59e0b20;color:var(--accent)}.prio.p3 .prio-num{background:#3b82f620;color:var(--blue)}.prio.p4 .prio-num{background:#10b98120;color:var(--green)}
+.prio-title{font-size:15px;font-weight:600}.prio-desc{font-size:13px;color:var(--dim);line-height:1.5}
+.page{display:none}.page.active{display:block}
+</style>
+</head>
+<body>
+<div class="header"><div class="header-inner"><div><span class="dot"></span><h1>Neo Bricks Analytics</h1></div><p>BricksApp · 245 заказов · июнь 2025 – февраль 2026</p></div></div>
+<div class="tabs"><div class="tabs-inner" id="tabsBar">
+<button class="tab active" data-tab="overview">Обзор</button><button class="tab" data-tab="monthly">Динамика</button><button class="tab" data-tab="buyers">Покупатели</button><button class="tab" data-tab="products">Товары</button><button class="tab" data-tab="patterns">Паттерны</button><button class="tab" data-tab="insights">Инсайты</button>
+</div></div>
+<div class="content">
+
+<div class="page active" id="page-overview">
+<div class="section"><h2>Ключевые метрики</h2><div class="sub">За весь период (июнь 2025 – 15 февраля 2026)</div>
+<div class="grid grid-6">
+<div class="kpi"><div class="kpi-label">Выручка</div><div class="kpi-value">253 463 ₽</div><div class="kpi-sub">товары без доставки</div></div>
+<div class="kpi blue"><div class="kpi-label">Заказы</div><div class="kpi-value">245</div><div class="kpi-sub">оплаченных</div></div>
+<div class="kpi green"><div class="kpi-label">Средний чек</div><div class="kpi-value">1 035 ₽</div><div class="kpi-sub">по товарам</div></div>
+<div class="kpi purple"><div class="kpi-label">Покупатели</div><div class="kpi-value">184</div><div class="kpi-sub">уникальных</div></div>
+<div class="kpi cyan"><div class="kpi-label">Повторные</div><div class="kpi-value">20.1%</div><div class="kpi-sub">37 покупателей</div></div>
+<div class="kpi pink"><div class="kpi-label">Их доля в выр.</div><div class="kpi-value">49.3%</div><div class="kpi-sub">124 952 ₽</div></div>
+</div></div>
+<div class="section"><h2>Февраль на ходу</h2><div class="sub">Темп за первые 15 дней</div>
+<div class="grid grid-3">
+<div class="kpi green"><div class="kpi-label">Факт</div><div class="kpi-value">29 036 ₽</div><div class="kpi-sub">27 заказов</div></div>
+<div class="kpi"><div class="kpi-label">Прогноз мес.</div><div class="kpi-value">~54 200 ₽</div><div class="kpi-sub">при текущем темпе</div></div>
+<div class="kpi green"><div class="kpi-label">vs Январь</div><div class="kpi-value">+3%</div><div class="kpi-sub">январь: 52 657 ₽</div><div class="kpi-trend up">↑ 3%</div></div>
+</div>
+<div style="margin-top:16px"><div class="insight ok"><span>🔥</span><span>Февраль идёт по темпу лучше января — при сохранении ритма будет рекорд ~54К.</span></div></div>
+</div>
+<div class="section"><h2>Структура выручки</h2>
+<div class="grid grid-2">
+<div class="card"><canvas id="chartPie"></canvas></div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div class="card" style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:3px;background:var(--accent)"></div><span>Детали</span></div><div style="text-align:right"><div class="mono" style="font-weight:600">157 751 ₽</div><div style="font-size:12px;color:var(--dim)">8 752 шт · 62%</div></div></div>
+<div class="card" style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:3px;background:var(--pink)"></div><span>Минифигурки</span></div><div style="text-align:right"><div class="mono" style="font-weight:600">85 387 ₽</div><div style="font-size:12px;color:var(--dim)">210 шт · 34%</div></div></div>
+<div class="card" style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:3px;background:var(--blue)"></div><span>Наборы</span></div><div style="text-align:right"><div class="mono" style="font-weight:600">5 325 ₽</div><div style="font-size:12px;color:var(--dim)">3 шт · 2%</div></div></div>
+<div class="card" style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:10px"><div style="width:10px;height:10px;border-radius:3px;background:var(--green)"></div><span>Инструкции</span></div><div style="text-align:right"><div class="mono" style="font-weight:600">4 720 ₽</div><div style="font-size:12px;color:var(--dim)">34 шт · 2%</div></div></div>
+</div></div></div>
+<div class="section"><h2>Каналы</h2><div class="sub">BricksApp vs Авито</div>
+<div class="grid grid-2">
+<div class="channel"><div class="channel-name">BricksApp</div><div class="channel-value" style="color:var(--blue)">205 877 ₽</div><div class="channel-sub">208 заказов · сред. чек 990 ₽</div><div class="channel-tag" style="color:var(--green)">81% выручки</div></div>
+<div class="channel"><div class="channel-name">Авито</div><div class="channel-value" style="color:var(--accent)">47 586 ₽</div><div class="channel-sub">37 заказов · сред. чек 1 286 ₽</div><div class="channel-tag" style="color:var(--dim)">19%, чек на 30% выше</div></div>
+</div></div></div>
+
+<div class="page" id="page-monthly">
+<div class="section"><h2>Выручка по месяцам</h2><div class="sub">* Февраль — данные за 15 дней</div><div class="card"><canvas id="chartRevenue"></canvas></div></div>
+<div class="section"><h2>Заказы и новые покупатели</h2><div class="card"><canvas id="chartOrders"></canvas></div></div>
+<div class="section"><h2>Средний чек</h2><div class="card"><canvas id="chartAvg"></canvas></div></div>
+<div class="section"><h2>Месяц-к-месяцу</h2><div class="card"><div class="growth-grid">
+<div class="growth-item"><div class="label">Июл→Авг</div><div class="val down">-21%</div></div>
+<div class="growth-item"><div class="label">Авг→Сен</div><div class="val up">+96%</div></div>
+<div class="growth-item"><div class="label">Сен→Окт</div><div class="val down">-47%</div></div>
+<div class="growth-item"><div class="label">Окт→Ноя</div><div class="val up">+213%</div></div>
+<div class="growth-item"><div class="label">Ноя→Дек</div><div class="val down">-3%</div></div>
+<div class="growth-item"><div class="label">Дек→Янв</div><div class="val up">+14%</div></div>
+</div></div></div></div>
+
+<div class="page" id="page-buyers">
+<div class="section"><h2>Топ-10 покупателей</h2><div class="sub">По общей выручке</div>
+<div class="card" style="overflow-x:auto"><table><thead><tr><th>#</th><th>Покупатель</th><th>Заказы</th><th>Выручка</th><th>Штук</th><th>Сред. чек</th><th>Тип</th></tr></thead><tbody>
+<tr><td class="mono">1</td><td style="font-weight:600">dmuodin</td><td class="mono">12</td><td class="mono accent">22 091 ₽</td><td class="mono">1 352</td><td class="mono">1 841 ₽</td><td><span class="badge badge-moc">MOC-строитель</span></td></tr>
+<tr><td class="mono">2</td><td style="font-weight:600">shop-device</td><td class="mono">2</td><td class="mono accent">27 057 ₽</td><td class="mono">74</td><td class="mono">13 529 ₽</td><td><span class="badge badge-reseller">Перекупщик</span></td></tr>
+<tr><td class="mono">3</td><td style="font-weight:600">saikonlou</td><td class="mono">3</td><td class="mono accent">11 380 ₽</td><td class="mono">47</td><td class="mono">3 793 ₽</td><td><span class="badge badge-collector">Коллекционер</span></td></tr>
+<tr><td class="mono">4</td><td style="font-weight:600">DamianZ</td><td class="mono">3</td><td class="mono accent">8 903 ₽</td><td class="mono">808</td><td class="mono">2 968 ₽</td><td><span class="badge badge-moc">Строитель</span></td></tr>
+<tr><td class="mono">5</td><td style="font-weight:600">timkaa525</td><td class="mono">1</td><td class="mono accent">9 384 ₽</td><td class="mono">75</td><td class="mono">9 384 ₽</td><td><span class="badge badge-collector">Коллекционер</span></td></tr>
+<tr><td class="mono">6</td><td style="font-weight:600">OmskStore</td><td class="mono">3</td><td class="mono accent">5 763 ₽</td><td class="mono">62</td><td class="mono">1 921 ₽</td><td><span class="badge badge-shop">Магазин</span></td></tr>
+<tr><td class="mono">7</td><td style="font-weight:600">Никита Педич</td><td class="mono">1</td><td class="mono accent">6 025 ₽</td><td class="mono">47</td><td class="mono">6 025 ₽</td><td><span class="badge badge-default">—</span></td></tr>
+<tr><td class="mono">8</td><td style="font-weight:600">vadimnovi</td><td class="mono">2</td><td class="mono accent">4 162 ₽</td><td class="mono">528</td><td class="mono">2 081 ₽</td><td><span class="badge badge-moc">Строитель</span></td></tr>
+<tr><td class="mono">9</td><td style="font-weight:600">tim170303</td><td class="mono">1</td><td class="mono accent">4 350 ₽</td><td class="mono">210</td><td class="mono">4 350 ₽</td><td><span class="badge badge-moc">Строитель</span></td></tr>
+<tr><td class="mono">10</td><td style="font-weight:600">Ian Curtis</td><td class="mono">1</td><td class="mono accent">4 300 ₽</td><td class="mono">6</td><td class="mono">4 300 ₽</td><td><span class="badge badge-collector">Коллекционер</span></td></tr>
+</tbody></table></div></div>
+<div class="section"><h2>Повторные vs разовые</h2>
+<div class="grid grid-2">
+<div class="card"><canvas id="chartRepeatBuyers"></canvas><div style="text-align:center;font-size:13px;color:var(--dim);margin-top:8px">По покупателям</div></div>
+<div class="card"><canvas id="chartRepeatRev"></canvas><div style="text-align:center;font-size:13px;color:var(--dim);margin-top:8px">По выручке</div></div>
+</div>
+<div style="margin-top:16px"><div class="insight warn"><span>🎯</span><span>20% покупателей = 49% выручки. Каждый повторный приносит 3 378 ₽ vs 874 ₽ у разового.</span></div></div>
+</div>
+<div class="section"><h2>dmuodin — золотой клиент</h2><div class="sub">12 заказов, 22 091 ₽, 1 352 детали</div>
+<div class="card"><div class="insight info"><span>🧱</span><span>MOC-строитель: 1 351 деталь, заказывает каждые ~20 дней. Категории: Brick, Technic Beam, Plate, Slope.</span></div></div></div>
+<div class="section"><h2>shop-device — перекупщик</h2><div class="sub">2 заказа, 27 057 ₽ (10.7% выручки)</div>
+<div class="card"><div class="insight alert"><span>🔍</span><span>Два заказа минифигурок: 18 487 ₽ + 8 570 ₽. Только минифигурки (90 шт). Скидки 8-10%.</span></div></div></div>
+<div class="section"><h2>Новые покупатели</h2><div class="card"><canvas id="chartNewBuyers"></canvas></div></div>
+</div>
+
+<div class="page" id="page-products">
+<div class="section"><h2>Самые популярные детали</h2><div class="sub">По количеству разных заказов</div>
+<div class="card" style="overflow-x:auto"><table><thead><tr><th>ID</th><th>Деталь</th><th>Заказы</th><th>Кол-во</th><th>Выручка</th></tr></thead><tbody>
+<tr><td class="mono accent">3023</td><td>Plate 1x2</td><td class="mono">25</td><td class="mono">201</td><td class="mono">812 ₽</td></tr>
+<tr><td class="mono accent">3069</td><td>Tile 1x2</td><td class="mono">22</td><td class="mono">100</td><td class="mono">760 ₽</td></tr>
+<tr><td class="mono accent">3005</td><td>Brick 1x1</td><td class="mono">21</td><td class="mono">238</td><td class="mono">1 377 ₽</td></tr>
+<tr><td class="mono accent">3070</td><td>Tile 1x1</td><td class="mono">20</td><td class="mono">141</td><td class="mono">841 ₽</td></tr>
+<tr><td class="mono accent">3068</td><td>Tile 2x2</td><td class="mono">20</td><td class="mono">83</td><td class="mono">638 ₽</td></tr>
+<tr><td class="mono accent">3020</td><td>Plate 2x4</td><td class="mono">20</td><td class="mono">82</td><td class="mono">453 ₽</td></tr>
+<tr><td class="mono accent">970c00</td><td>Legs Assembly</td><td class="mono">19</td><td class="mono">49</td><td class="mono">2 155 ₽</td></tr>
+<tr><td class="mono accent">3062</td><td>Round Brick 1x1</td><td class="mono">18</td><td class="mono">132</td><td class="mono">563 ₽</td></tr>
+<tr><td class="mono accent">54200</td><td>Slope 30 1x1x2/3</td><td class="mono">17</td><td class="mono">258</td><td class="mono">780 ₽</td></tr>
+<tr><td class="mono accent">3004</td><td>Brick 1x2</td><td class="mono">17</td><td class="mono">447</td><td class="mono">2 136 ₽</td></tr>
+</tbody></table></div></div>
+<div class="section"><h2>Минифигурки</h2><div class="sub">222 шт на 92 542 ₽, средняя цена 417 ₽</div>
+<div class="grid grid-2">
+<div class="card"><h3>По количеству</h3><canvas id="chartMfCount"></canvas></div>
+<div class="card"><h3>По выручке</h3><canvas id="chartMfRev"></canvas></div>
+</div>
+<div style="margin-top:16px"><div class="insight warn"><span>💎</span><span>11 минифигурок >1000₽ = 18 740₽ (20%). Основной объём (158 шт) — сегмент 100-500₽.</span></div></div>
+</div>
+<div class="section"><h2>Заказы по сумме</h2><div class="card"><canvas id="chartOrderSize"></canvas></div>
+<div style="margin-top:16px"><div class="insight warn"><span>⚖️</span><span>43% заказов 200-500₽ = 14% выручки. 10% заказов >2000₽ = 44% выручки.</span></div></div></div>
+</div>
+
+<div class="page" id="page-patterns">
+<div class="section"><h2>Когда покупают</h2><div class="sub">Дни недели и часы (МСК)</div>
+<div class="grid grid-2">
+<div class="card"><h3>День недели</h3><canvas id="chartDow"></canvas></div>
+<div class="card"><h3>Часы (МСК)</h3><canvas id="chartHour"></canvas></div>
+</div>
+<div style="margin-top:16px">
+<div class="insight info"><span>📅</span><span>Вт — лидер по заказам (51). Сб — по выручке (50 662₽). Ср: 24 заказа, но 44 268₽.</span></div>
+<div class="insight info"><span>🕐</span><span>Пик 17:00 (21 заказ) и 21:00 (19). Покупают после работы и вечером.</span></div>
+</div></div>
+<div class="section"><h2>Доставка</h2><div class="card"><canvas id="chartShip"></canvas></div></div>
+<div class="section"><h2>Скидки</h2><div class="card"><div class="grid grid-3">
+<div class="stat-row"><div class="stat-label">Позиции со скидкой</div><div class="stat-val">1.8%</div><div class="stat-sub">59 из 3 339</div></div>
+<div class="stat-row"><div class="stat-label">Сумма скидок</div><div class="stat-val">5 071 ₽</div><div class="stat-sub">2.0%</div></div>
+<div class="stat-row"><div class="stat-label">Скидки на заказ</div><div class="stat-val">15 зак.</div><div class="stat-sub">3-10%</div></div>
+</div></div></div>
+<div class="section"><h2>Состояние</h2><div class="grid grid-2">
+<div class="card" style="text-align:center"><div class="big-pct" style="color:var(--accent)">94.4%</div><div style="font-size:14px;color:var(--dim)">Б/У · 8 455 шт · 239 383 ₽</div></div>
+<div class="card" style="text-align:center"><div class="big-pct" style="color:var(--green)">5.6%</div><div style="font-size:14px;color:var(--dim)">Новые · 547 шт · 14 080 ₽</div></div>
+</div></div></div>
+
+<div class="page" id="page-insights">
+<div class="section"><h2>Ключевые находки</h2>
+<div class="insight ok"><span>🚀</span><span>Рост x27 за 8 месяцев. Февраль по темпу → рекорд ~54К.</span></div>
+<div class="insight alert"><span>⚠️</span><span>shop-device — 10.7% выручки двумя заказами. Зависимость.</span></div>
+<div class="insight ok"><span>🎯</span><span>dmuodin — 12 заказов, каждые ~20 дней. Нужно больше таких.</span></div>
+<div class="insight warn"><span>💎</span><span>Минифигурки — 34% выручки при 2.3% количества.</span></div>
+<div class="insight info"><span>📊</span><span>«Правило среды»: 24 заказа, но 44 268₽ — крупные B2B.</span></div>
+<div class="insight warn"><span>🔄</span><span>Повторные: каждые 20-40 дней. 45+ дней = окно для возврата.</span></div>
+<div class="insight info"><span>📦</span><span>43% заказов 200-500₽ = 14% выручки. Укрупнять корзину.</span></div>
+<div class="insight info"><span>🌈</span><span>Топ-цвета: чёрный, тёмно-серый, белый, светло-серый — держать всегда.</span></div>
+<div class="insight ok"><span>💡</span><span>970c00 (ноги) в 19 заказах. Кастомные минифигурки из запчастей.</span></div>
+</div>
+<div class="section"><h2>Приоритеты</h2><div class="grid grid-2">
+<div class="prio p1"><div class="prio-head"><span class="prio-num">1</span><span class="prio-title">Наличие топ-10 деталей</span></div><div class="prio-desc">В 10-25% заказов. Нет на складе = потери.</div></div>
+<div class="prio p2"><div class="prio-head"><span class="prio-num">2</span><span class="prio-title">Минифигурки на Авито</span></div><div class="prio-desc">11 шт >1000₽ = потенциал ~20К.</div></div>
+<div class="prio p3"><div class="prio-head"><span class="prio-num">3</span><span class="prio-title">MOC-наборы по цветам</span></div><div class="prio-desc">Растит средний чек строителей.</div></div>
+<div class="prio p4"><div class="prio-head"><span class="prio-num">4</span><span class="prio-title">Возврат спящих (45+ дней)</span></div><div class="prio-desc">5-10 клиентов = +15-30К/мес.</div></div>
+</div></div></div>
+
+</div>
+
+<script>
+document.getElementById('tabsBar').addEventListener('click',e=>{if(!e.target.classList.contains('tab'))return;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));e.target.classList.add('active');document.getElementById('page-'+e.target.dataset.tab).classList.add('active');requestAnimationFrame(initCharts)});
+Chart.defaults.color='#94a3b8';Chart.defaults.borderColor='#1e1e2e';Chart.defaults.font.family="'Inter',sans-serif";
+const charts={};
+const M=['Июн','Июл','Авг','Сен','Окт','Ноя','Дек','Янв','Фев*'],REV=[1794,18506,14590,28529,15086,47232,46033,52657,29036],ORD=[2,15,18,22,22,38,47,54,27],NB=[2,14,15,17,14,32,33,41,16],AVG=[897,1234,811,1297,686,1243,979,975,1075];
+function mk(id,cfg){const el=document.getElementById(id);if(!el||el.offsetParent===null||charts[id])return;charts[id]=new Chart(el,cfg)}
+function initCharts(){
+mk('chartPie',{type:'doughnut',data:{labels:['Детали','Минифигурки','Наборы','Инструкции','Коробки'],datasets:[{data:[157751,85387,5325,4720,280],backgroundColor:['#f59e0b','#ec4899','#3b82f6','#10b981','#8b5cf6'],borderColor:'#0a0a0f',borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,pointStyleWidth:10}}}}});
+mk('chartRevenue',{type:'bar',data:{labels:M,datasets:[{label:'Выручка ₽',data:REV,backgroundColor:'#f59e0b88',borderColor:'#f59e0b',borderWidth:1,borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>(v/1000)+'K'},grid:{color:'#1e293b'}},x:{grid:{display:false}}}}});
+mk('chartOrders',{type:'bar',data:{labels:M,datasets:[{label:'Заказы',data:ORD,backgroundColor:'#3b82f688',borderColor:'#3b82f6',borderWidth:1,borderRadius:4},{label:'Новые покуп.',data:NB,backgroundColor:'#10b98188',borderColor:'#10b981',borderWidth:1,borderRadius:4}]},options:{responsive:true,scales:{y:{grid:{color:'#1e293b'}},x:{grid:{display:false}}}}});
+mk('chartAvg',{type:'line',data:{labels:M,datasets:[{label:'Средний чек ₽',data:AVG,borderColor:'#8b5cf6',backgroundColor:'#8b5cf620',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:'#8b5cf6'}]},options:{responsive:true,scales:{y:{min:0,max:1500,grid:{color:'#1e293b'}},x:{grid:{display:false}}}}});
+mk('chartRepeatBuyers',{type:'doughnut',data:{labels:['Повторные (37)','Разовые (147)'],datasets:[{data:[37,147],backgroundColor:['#f59e0b','#334155'],borderColor:'#0a0a0f',borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true}}}}});
+mk('chartRepeatRev',{type:'doughnut',data:{labels:['Повторные (125К)','Разовые (129К)'],datasets:[{data:[124952,128512],backgroundColor:['#f59e0b','#334155'],borderColor:'#0a0a0f',borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true}}}}});
+mk('chartNewBuyers',{type:'bar',data:{labels:M,datasets:[{label:'Новые покупатели',data:NB,backgroundColor:'#06b6d488',borderColor:'#06b6d4',borderWidth:1,borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1e293b'}},x:{grid:{display:false}}}}});
+mk('chartMfCount',{type:'bar',data:{labels:['<100₽','100-300₽','300-500₽','500-1K₽','1K+₽'],datasets:[{label:'Кол-во',data:[13,80,78,40,11],backgroundColor:'#ec489988',borderColor:'#ec4899',borderWidth:1,borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1e293b'}},x:{grid:{display:false}}}}});
+mk('chartMfRev',{type:'bar',data:{labels:['<100₽','100-300₽','300-500₽','500-1K₽','1K+₽'],datasets:[{label:'Выручка ₽',data:[610,17974,29118,26100,18740],backgroundColor:'#f59e0b88',borderColor:'#f59e0b',borderWidth:1,borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>(v/1000)+'K'},grid:{color:'#1e293b'}},x:{grid:{display:false}}}}});
+mk('chartOrderSize',{type:'bar',data:{labels:['<200₽','200-500₽','500-1K₽','1-2K₽','2-5K₽','5-10K₽','10K+₽'],datasets:[{label:'Заказы',data:[2,105,78,36,17,6,1],backgroundColor:'#3b82f688',borderColor:'#3b82f6',borderWidth:1,borderRadius:4,yAxisID:'y'},{label:'Выручка ₽',data:[285,35429,54090,51759,50146,43268,18487],backgroundColor:'#f59e0b88',borderColor:'#f59e0b',borderWidth:1,borderRadius:4,yAxisID:'y1'}]},options:{responsive:true,scales:{y:{position:'left',grid:{color:'#1e293b'}},y1:{position:'right',grid:{display:false},ticks:{callback:v=>(v/1000)+'K'}},x:{grid:{display:false}}}}});
+mk('chartDow',{type:'bar',data:{labels:['Пн','Вт','Ср','Чт','Пт','Сб','Вс'],datasets:[{label:'Заказы',data:[32,51,24,26,31,42,39],backgroundColor:'#3b82f688',borderColor:'#3b82f6',borderWidth:1,borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1e293b'}},x:{grid:{display:false}}}}});
+mk('chartHour',{type:'line',data:{labels:Array.from({length:24},(_,i)=>String(i).padStart(2,'0')),datasets:[{label:'Заказы',data:[11,7,5,3,1,1,1,5,5,9,8,12,10,15,10,12,14,21,15,15,16,19,17,13],borderColor:'#8b5cf6',backgroundColor:'#8b5cf620',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#8b5cf6'}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1e293b'}},x:{grid:{display:false}}}}});
+mk('chartShip',{type:'bar',data:{labels:['OZON','Яндекс','Авито-Яндекс','Авито-ПВЗ','Авито-5Post','CDEK'],datasets:[{label:'Заказы',data:[170,24,13,9,7,6],backgroundColor:'#06b6d488',borderColor:'#06b6d4',borderWidth:1,borderRadius:4}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1e293b'}},y:{grid:{display:false}}}}});
+}
+initCharts();
+</script>
+</body></html>
