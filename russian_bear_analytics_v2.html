@@ -91,7 +91,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(30,30,46,0.13)}
 .cpr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(30,30,46,0.13)}.cpr:last-of-type{border-bottom:none}
 .cpb{display:flex;align-items:center;gap:8px}.cpf{height:6px;background:var(--purple);border-radius:3px}
 .cpv{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--purple);font-weight:600;min-width:30px;text-align:right}
-.part-tip{position:relative;cursor:help;border-bottom:1px dotted var(--text-muted)}.part-tip .pt{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:400;color:var(--text-dim);white-space:nowrap;z-index:10;box-shadow:0 4px 20px rgba(0,0,0,0.5)}.part-tip:hover .pt{display:block}
+.part-tip{position:relative;cursor:help;border-bottom:1px dotted currentColor}.part-tip .pt{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:400;color:var(--text-dim);white-space:nowrap;z-index:10;box-shadow:0 4px 20px rgba(0,0,0,0.5)}.part-tip:hover .pt{display:block}.part-hot{color:var(--amber)}
 
 .cond{margin-bottom:20px}.cond:last-child{margin-bottom:0}
 .cond-h{display:flex;justify-content:space-between;margin-bottom:6px}
@@ -423,6 +423,14 @@ new Chart(document.getElementById('pieBuyerCount'),{type:'doughnut',data:{labels
 new Chart(document.getElementById('pieBuyerRev'),{type:'doughnut',data:{labels:['Разовые','Повторные'],datasets:[{data:[273962,753489],backgroundColor:['#44445a','#f59e0b'],borderWidth:0}]},options:{...R,cutout:'55%',plugins:{tooltip:{callbacks:{label:c=>fN(c.raw)+' ₽'}}}}});
 new Chart(document.getElementById('chartCohort'),{type:'bar',data:{labels:M,datasets:[{data:[12,45,4,58,38,40,39,37,62,19],backgroundColor:'#06b6d4',borderRadius:4}]},options:{...R,scales:{y:{grid:G},x:{grid:G}}}});
 
+// ===== PART NAMES (shared across products + patterns) =====
+const PART_NAMES={'970c00':'Minifig Legs','3023':'Plate 1x2','3069':'Tile 1x2','30374':'Bar 4L Lightsaber','4073':'Plate 1x1 Round','3024':'Plate 1x1','3062':'Brick 1x1 Round','3710':'Plate 1x4','2431':'Tile 1x4','3020':'Plate 2x4','3004':'Brick 1x2','3005':'Brick 1x1','3022':'Plate 2x2','3795':'Plate 2x6','3021':'Plate 2x3','15573':'Plate 1x2 w/ Handle','98138':'Tile 1x1 Round','3010':'Brick 1x4','3003':'Brick 2x2','3666':'Plate 1x6','3626pb0633':'Minifig Head','58247':'Plate 2x2 Round','64567':'Minifig Weapon Sword','63965':'Bar 6L w/ Stop Ring','3626':'Minifig Head'};
+function partSpan(id,hot){
+  const name=PART_NAMES[id]||id;
+  const cls=hot?' part-hot':'';
+  return `<span class="part-tip${cls}">${id}<span class="pt">${name}</span></span>`;
+}
+
 // ===== PRODUCTS =====
 const topId=[
   {n:'970c00',o:105,q:445,r:11533,c:28},{n:'3023',o:103,q:984,r:3020,c:40},
@@ -437,7 +445,7 @@ const topId=[
   {n:'3003',o:39,q:274,r:1028,c:22},{n:'3666',o:39,q:212,r:934,c:23},
 ];
 const iT1=document.getElementById('itemsIdTable');
-topId.forEach((x,i)=>{iT1.innerHTML+=`<tr><td class="mono cm">${i+1}</td><td class="mono fw6">${x.n}</td><td class="mono fw6 cb">${x.o}</td><td class="mono cd">${fN(x.q)}</td><td class="mono ca">${fN(x.r)} ₽</td><td class="mono cp">${x.c}</td></tr>`;});
+topId.forEach((x,i)=>{iT1.innerHTML+=`<tr><td class="mono cm">${i+1}</td><td class="mono fw6">${partSpan(x.n)}</td><td class="mono fw6 cb">${x.o}</td><td class="mono cd">${fN(x.q)}</td><td class="mono ca">${fN(x.r)} ₽</td><td class="mono cp">${x.c}</td></tr>`;});
 
 const COLOR_NAMES={1:'White',5:'Red',7:'Blue',11:'Black',15:'White',17:'Brown',63:'Dark Brown',69:'Dark Purple',85:'Dark Bluish Gray',86:'Light Bluish Gray',88:'Reddish Brown',3:'Yellow',12:'Trans-Clear',67:'Metallic Gold'};
 const topColor=[
@@ -455,7 +463,7 @@ const topColor=[
 const iT2=document.getElementById('itemsColorTable');
 topColor.forEach((x,i)=>{
   const cn=COLOR_NAMES[x.c]||('c'+x.c);
-  iT2.innerHTML+=`<tr><td class="mono cm">${i+1}</td><td class="mono fw6" style="font-size:12px">${x.n} <span class="cd">(${cn})</span></td><td class="mono fw6 cb">${x.o}</td><td class="mono cd">${fN(x.q)}</td><td class="mono ca">${fN(x.r)} ₽</td></tr>`;
+  iT2.innerHTML+=`<tr><td class="mono cm">${i+1}</td><td class="mono fw6" style="font-size:12px">${partSpan(x.n)} <span class="cd">(${cn})</span></td><td class="mono fw6 cb">${x.o}</td><td class="mono cd">${fN(x.q)}</td><td class="mono ca">${fN(x.r)} ₽</td></tr>`;
 });
 
 new Chart(document.getElementById('chartMinifigSeg'),{type:'bar',data:{labels:['<100 ₽','100-500 ₽','500-1k ₽','1k-2k ₽','2000+ ₽'],datasets:[{data:[68,630,94,33,19],backgroundColor:'#ec4899',borderRadius:4}]},options:{...R,indexAxis:'y',scales:{x:{grid:G},y:{grid:{display:false}}},plugins:{tooltip:{callbacks:{label:c=>c.raw+' шт.'}}}}});
@@ -490,18 +498,13 @@ new Chart(document.getElementById('chartHour'),{type:'line',data:{labels:['00','
 [['OZON',303,356613,1177],['Авито — Яндекс',145,302730,2088],['Авито — ПВЗ',96,144712,1507],['Самовывоз',41,72505,1768],['Авито — Почта',34,47694,1403],['Яндекс Доставка',26,79059,3041],['Почта России',12,24137,2011]].forEach(s=>{document.getElementById('shippingTable').innerHTML+=`<tr><td class="fw6">${s[0]}</td><td class="mono cb">${fN(s[1])}</td><td class="mono ca">${fN(s[2])} ₽</td><td class="mono cg">${fN(s[3])} ₽</td></tr>`;});
 
 // Co-purchased pairs with part name tooltips
-const PART_NAMES={'3023':'Plate 1x2','4073':'Plate 1x1 Round','3020':'Plate 2x4','3024':'Plate 1x1','3069':'Tile 1x2','3710':'Plate 1x4','3022':'Plate 2x2','3021':'Plate 2x3','2431':'Tile 1x4','3004':'Brick 1x2','15573':'Plate 1x2 Modified','3005':'Brick 1x1'};
 const cpE=document.getElementById('coPurchaseCard');
-const BOLD_ID='3023';
-function partSpan(id){
-  const name=PART_NAMES[id]||id;
-  const bold=id===BOLD_ID?'font-weight:700;color:var(--text)':'';
-  return `<span class="part-tip" style="${bold}">${id}<span class="pt">${name}</span></span>`;
-}
+const HOT_ID='3023';
+function cpPartSpan(id){return partSpan(id,id===HOT_ID);}
 [['3023','4073',37],['3020','3023',37],['3023','3024',34],['3023','3069',34],['3023','3710',34],['3022','3023',34],['3021','3023',31],['2431','3023',29],['3004','3023',28],['15573','3023',27]].forEach(c=>{
-  cpE.innerHTML+=`<div class="cpr"><span style="font-size:13px" class="mono">${partSpan(c[0])} + ${partSpan(c[1])}</span><div class="cpb"><div class="cpf" style="width:${Math.max(20,c[2]/0.4)}px"></div><span class="cpv">${c[2]}</span></div></div>`;
+  cpE.innerHTML+=`<div class="cpr"><span style="font-size:13px" class="mono">${cpPartSpan(c[0])} + ${cpPartSpan(c[1])}</span><div class="cpb"><div class="cpf" style="width:${Math.max(20,c[2]/0.4)}px"></div><span class="cpv">${c[2]}</span></div></div>`;
 });
-cpE.innerHTML+=`<div class="note"><span class="fw6">3023</span> (Plate 1x2) участвует в 9 из 10 топовых комбинаций — самая «социальная» деталь</div>`;
+cpE.innerHTML+=`<div class="note"><span class="ca">3023</span> (Plate 1x2) участвует в 9 из 10 топовых комбинаций — самая «социальная» деталь</div>`;
 </script>
 </body>
 </html>
