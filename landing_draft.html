@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI-антихаос для людей с СДВГ</title>
+  <meta name="description" content="Живой пилот для людей с СДВГ и хроническим хаосом: меньше держать в голове, легче стартовать, быстрее возвращаться после выпадения.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Unbounded:wght@500;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fff7ee;
+      --bg-2: #fff1d8;
+      --paper: rgba(255, 250, 244, 0.9);
+      --paper-strong: #fff9f2;
+      --ink: #161417;
+      --muted: #5c5662;
+      --line: rgba(22, 20, 23, 0.1);
+      --orange: #ff7b22;
+      --orange-deep: #e45d00;
+      --teal: #0c9b89;
+      --teal-soft: #d6f5ef;
+      --yellow: #ffd84c;
+      --yellow-soft: #fff1a8;
+      --berry: #ff4f6d;
+      --berry-soft: #ffd9e0;
+      --shadow-lg: 0 28px 80px rgba(22, 20, 23, 0.12);
+      --shadow-md: 0 18px 46px rgba(22, 20, 23, 0.08);
+      --radius-xl: 34px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 10%, rgba(255, 123, 34, 0.22), transparent 22%),
+        radial-gradient(circle at 88% 14%, rgba(12, 155, 137, 0.2), transparent 24%),
+        radial-gradient(circle at 50% 100%, rgba(255, 216, 76, 0.26), transparent 30%),
+        linear-gradient(180deg, var(--bg) 0%, #fff4e4 44%, #fff9f2 100%);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(22, 20, 23, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(22, 20, 23, 0.025) 1px, transparent 1px);
+      background-size: 24px 24px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 85%);
+      z-index: -1;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 14px;
+      top: -56px;
+      z-index: 40;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: #19161a;
+      color: #fff8f1;
+      font-weight: 700;
+      transition: top 0.18s ease;
+    }
+
+    .skip-link:focus {
+      top: 12px;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .wrap {
+      width: min(calc(100% - 28px), var(--max));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      padding: 18px 0 8px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 18px;
+      background: rgba(255, 251, 246, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      border-radius: 999px;
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background:
+        linear-gradient(135deg, var(--orange) 0%, #ffb054 52%, var(--yellow) 100%);
+      color: #fffaf2;
+      font-family: "Unbounded", sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 14px 24px rgba(255, 123, 34, 0.28);
+      transform: rotate(-6deg);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .nav a {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .nav a:hover {
+      background: rgba(22, 20, 23, 0.06);
+      color: var(--ink);
+    }
+
+    .nav a:focus-visible,
+    .btn:focus-visible {
+      outline: 3px solid rgba(255, 216, 76, 0.78);
+      outline-offset: 4px;
+    }
+
+    .nav-cta {
+      background: var(--ink);
+      color: #fff8f1 !important;
+      font-weight: 700;
+    }
+
+    .hero {
+      padding: 22px 0 28px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(310px, 0.88fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .hero-main,
+    .hero-side,
+    .card,
+    .faq-card,
+    .pilot-card,
+    .price-card,
+    .proof-card,
+    .compare-card {
+      background: var(--paper);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(16px);
+    }
+
+    .hero-main {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+      padding: 30px;
+      background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 247, 236, 0.92) 100%);
+    }
+
+    .hero-main::before {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      right: -62px;
+      top: -50px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 123, 34, 0.22), transparent 72%);
+      pointer-events: none;
+    }
+
+    .hero-main::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      left: -110px;
+      bottom: -130px;
+      border-radius: 42px;
+      transform: rotate(24deg);
+      background: rgba(12, 155, 137, 0.1);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--yellow-soft);
+      color: #6e5511;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      box-shadow: inset 0 0 0 1px rgba(110, 85, 17, 0.08);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      font-family: "Unbounded", sans-serif;
+      letter-spacing: -0.04em;
+      line-height: 1.02;
+    }
+
+    h1 {
+      font-size: clamp(34px, 6vw, 76px);
+      margin-bottom: 18px;
+    }
+
+    .hero-lead {
+      margin: 0 0 22px;
+      font-size: 20px;
+      line-height: 1.48;
+      color: var(--muted);
+    }
+
+    .pulse-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(12, 155, 137, 0.1);
+      color: var(--teal);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(22, 20, 23, 0.06);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .tag.hot {
+      background: var(--berry-soft);
+      color: #7c2231;
+    }
+
+    .tag.cool {
+      background: var(--teal-soft);
+      color: #0a6d61;
+    }
+
+    .tag.sun {
+      background: rgba(255, 216, 76, 0.4);
+      color: #695000;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 54px;
+      padding: 0 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 15px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-deep) 100%);
+      color: #fff9f2;
+      box-shadow: 0 18px 30px rgba(255, 123, 34, 0.28);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    .hero-foot {
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .hero-side {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      border-radius: var(--radius-xl);
+      padding: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 248, 240, 0.94) 0%, rgba(255, 255, 255, 0.72) 100%);
+    }
+
+    .hero-visual {
+      display: grid;
+      gap: 14px;
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(244, 255, 251, 0.86) 100%);
+      border: 1px solid rgba(22, 20, 23, 0.08);
+      box-shadow: var(--shadow-md);
+    }
+
+    .hero-visual h3,
+    .mode-copy h3,
+    .mode-art h3,
+    .art-card h3 {
+      font-size: clamp(22px, 3vw, 30px);
+      margin-bottom: 10px;
+    }
+
+    .hero-visual p,
+    .mode-copy p,
+    .mode-art p,
+    .art-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.58;
+    }
+
+    .hero-visual img,
+    .mode-art img,
+    .art-card img {
+      border-radius: 24px;
+      border: 1px solid rgba(22, 20, 23, 0.08);
+      background: #fffdf8;
+      box-shadow: var(--shadow-md);
+    }
+
+    .hero-badge-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(25, 22, 26, 0.84);
+      color: #fff8f1;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .inline-icon {
+      width: 18px;
+      height: 18px;
+      flex: none;
+    }
+
+    .quick-card,
+    .sticky-card {
+      position: relative;
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(22, 20, 23, 0.08);
+      box-shadow: var(--shadow-md);
+    }
+
+    .quick-card::after,
+    .sticky-card::after {
+      content: "";
+      position: absolute;
+      inset: auto 16px -10px auto;
+      width: 78px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(255, 216, 76, 0.5);
+      transform: rotate(-8deg);
+      filter: blur(1px);
+      pointer-events: none;
+    }
+
+    .quick-card {
+      transform: rotate(-1.2deg);
+    }
+
+    .sticky-card {
+      transform: rotate(1.1deg);
+    }
+
+    .micro-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(22, 20, 23, 0.06);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .quick-card h3,
+    .sticky-card h3,
+    .price-card h3,
+    .pilot-card h3,
+    .faq-card h3,
+    .proof-card h3,
+    .card h3,
+    .compare-card h3 {
+      font-size: clamp(20px, 2.5vw, 28px);
+      margin-bottom: 10px;
+    }
+
+    .quick-card p,
+    .sticky-card p,
+    .pilot-card p,
+    .price-card p,
+    .faq-card p,
+    .proof-card p,
+    .card p,
+    .compare-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .quick-list,
+    .mini-list,
+    .price-list,
+    .pilot-list {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      line-height: 1.65;
+    }
+
+    .quick-list li,
+    .mini-list li,
+    .price-list li,
+    .pilot-list li {
+      margin-bottom: 8px;
+    }
+
+    section {
+      padding: 24px 0;
+    }
+
+    .section-head {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(28px, 4.6vw, 54px);
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    .cards-4,
+    .cards-3,
+    .compare-grid,
+    .proof-grid,
+    .faq-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .cards-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .cards-3,
+    .compare-grid,
+    .proof-grid,
+    .faq-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card,
+    .compare-card,
+    .proof-card,
+    .faq-card,
+    .pilot-card,
+    .price-card {
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .card:nth-child(2n),
+    .proof-card:nth-child(2n) {
+      transform: rotate(-0.9deg);
+    }
+
+    .card:nth-child(2n + 1),
+    .proof-card:nth-child(2n + 1) {
+      transform: rotate(0.8deg);
+    }
+
+    .card-top {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 46px;
+      height: 46px;
+      padding: 0 14px;
+      border-radius: 14px;
+      margin-bottom: 14px;
+      font-weight: 800;
+      background: rgba(255, 216, 76, 0.42);
+      color: #705300;
+      box-shadow: inset 0 0 0 1px rgba(112, 83, 0, 0.08);
+    }
+
+    .card.signal .card-top {
+      background: var(--berry-soft);
+      color: #7c2231;
+    }
+
+    .card.calm .card-top {
+      background: var(--teal-soft);
+      color: #0a6d61;
+    }
+
+    .card.sun .card-top {
+      background: rgba(255, 216, 76, 0.46);
+      color: #705300;
+    }
+
+    .accent-strip {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(135deg, rgba(12, 155, 137, 0.12) 0%, rgba(255, 216, 76, 0.22) 100%);
+      border: 1px solid rgba(12, 155, 137, 0.12);
+      box-shadow: var(--shadow-md);
+      font-size: 20px;
+      line-height: 1.5;
+      font-weight: 600;
+      color: #1d2e2a;
+    }
+
+    .copy-box {
+      position: relative;
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 16px 18px 52px;
+      border-radius: 18px;
+      border: 0;
+      appearance: none;
+      background: #19161a;
+      color: #fff8f2;
+      text-align: left;
+      font: inherit;
+      font-size: 15px;
+      line-height: 1.62;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .copy-box:hover {
+      transform: translateY(-2px);
+    }
+
+    .copy-box:focus-visible {
+      outline: 3px solid rgba(255, 216, 76, 0.78);
+      outline-offset: 4px;
+    }
+
+    .copy-box::after {
+      content: attr(data-hint);
+      position: absolute;
+      left: 18px;
+      bottom: 16px;
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffdcae;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .copy-box.is-copied {
+      background: #0c7d6f;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 18px 34px rgba(12, 155, 137, 0.24);
+    }
+
+    .compare-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .compare-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 6px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--orange) 0%, var(--teal) 100%);
+    }
+
+    .compare-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(22, 20, 23, 0.06);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .proof-card {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.86) 0%, rgba(255, 246, 232, 0.92) 100%);
+    }
+
+    .stat {
+      display: block;
+      margin-bottom: 10px;
+      font-family: "Unbounded", sans-serif;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+    }
+
+    .proof-note {
+      margin-top: 14px;
+      display: inline-flex;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 123, 34, 0.12);
+      color: #8f4300;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+
+    .flow-card {
+      position: relative;
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      background: var(--paper-strong);
+      border: 1px solid rgba(22, 20, 23, 0.08);
+      box-shadow: var(--shadow-md);
+      min-height: 100%;
+    }
+
+
+    .care-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .care-card {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(244, 255, 251, 0.82) 100%);
+      border: 1px solid rgba(22, 20, 23, 0.08);
+      box-shadow: var(--shadow-md);
+    }
+
+    .care-card h3 {
+      font-size: clamp(20px, 2.5vw, 28px);
+      margin-bottom: 10px;
+    }
+
+    .care-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.58;
+    }
+
+    .battery-lab {
+      padding: 18px;
+      border-radius: var(--radius-xl);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(235, 252, 247, 0.88) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .battery-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .battery-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(22, 20, 23, 0.08);
+      appearance: none;
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
+    }
+
+    .battery-tab:hover {
+      transform: translateY(-2px);
+    }
+
+    .battery-tab:focus-visible {
+      outline: 3px solid rgba(255, 216, 76, 0.78);
+      outline-offset: 4px;
+    }
+
+    .battery-tab.is-active {
+      background: linear-gradient(135deg, var(--teal) 0%, #18b39f 100%);
+      border-color: transparent;
+      color: #fffaf2;
+      box-shadow: 0 18px 30px rgba(12, 155, 137, 0.24);
+    }
+
+    .battery-panel {
+      display: none;
+    }
+
+    .battery-panel.is-active {
+      display: block;
+    }
+
+    .battery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .battery-card {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(22, 20, 23, 0.08);
+      box-shadow: var(--shadow-md);
+    }
+
+    .battery-card.accent {
+      background:
+        linear-gradient(135deg, rgba(255, 216, 76, 0.24) 0%, rgba(255, 123, 34, 0.16) 100%);
+    }
+
+    .battery-card h3 {
+      font-size: clamp(20px, 2.4vw, 28px);
+      margin-bottom: 10px;
+    }
+
+    .battery-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.58;
+    }
+
+    .mode-lab {
+      padding: 18px;
+      border-radius: var(--radius-xl);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(255, 244, 228, 0.94) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .mode-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .mode-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(22, 20, 23, 0.08);
+      appearance: none;
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
+    }
+
+    .mode-tab:hover {
+      transform: translateY(-2px);
+    }
+
+    .mode-tab:focus-visible {
+      outline: 3px solid rgba(255, 216, 76, 0.78);
+      outline-offset: 4px;
+    }
+
+    .mode-tab.is-active {
+      background: linear-gradient(135deg, var(--orange) 0%, #ff9a3c 100%);
+      border-color: transparent;
+      color: #fffaf2;
+      box-shadow: 0 18px 30px rgba(255, 123, 34, 0.26);
+    }
+
+    .mode-panel {
+      display: none;
+    }
+
+    .mode-panel.is-active {
+      display: block;
+    }
+
+    .mode-grid,
+    .art-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .mode-grid {
+      grid-template-columns: minmax(0, 0.94fr) minmax(280px, 1.06fr);
+      align-items: stretch;
+    }
+
+    .art-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mode-copy,
+    .mode-art,
+    .art-card {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(22, 20, 23, 0.08);
+      box-shadow: var(--shadow-md);
+    }
+
+    .mode-list {
+      margin: 16px 0 0;
+      padding-left: 18px;
+      line-height: 1.68;
+    }
+
+    .mode-list li {
+      margin-bottom: 8px;
+    }
+
+    .art-note {
+      margin-top: 14px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.58;
+    }
+
+    .step {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, var(--orange) 0%, var(--yellow) 100%);
+      color: #fffaf2;
+      font-family: "Unbounded", sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      transform: rotate(-6deg);
+    }
+
+    .pilot-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.82fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .pilot-card {
+      background:
+        linear-gradient(180deg, rgba(255, 252, 248, 0.92) 0%, rgba(255, 244, 228, 0.96) 100%);
+    }
+
+    .pilot-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .pilot-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(22, 20, 23, 0.06);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .price-card {
+      position: sticky;
+      top: 14px;
+      background:
+        linear-gradient(180deg, rgba(255, 232, 202, 0.96) 0%, rgba(255, 249, 241, 0.9) 100%);
+    }
+
+    .price-card::before {
+      content: "пилот";
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 79, 109, 0.14);
+      color: #8b2335;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transform: rotate(6deg);
+    }
+
+    .price-amount {
+      font-family: "Unbounded", sans-serif;
+      font-size: clamp(42px, 7vw, 70px);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      margin: 10px 0 14px;
+    }
+
+    .small-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .fit-notes {
+      display: grid;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .fit-note {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .fit-note svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .fit-ok  { background: rgba(12,155,137,0.09); color: #1a4a44; }
+    .fit-ok  svg { color: var(--teal); }
+
+    .fit-best { background: rgba(255,216,76,0.22); color: #5a4100; }
+    .fit-best svg { color: #c08800; }
+
+    .fit-no  { background: rgba(255,79,109,0.09); color: #5a1a24; }
+    .fit-no  svg { color: var(--berry); }
+
+    .faq-card {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(244, 255, 251, 0.92) 100%);
+    }
+
+    .footer-note {
+      padding: 16px 0 40px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .floating-a,
+    .floating-b {
+      animation: floaty 4.8s ease-in-out infinite;
+    }
+
+    .floating-b {
+      animation-delay: 0.7s;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.7;
+      }
+      50% {
+        transform: scale(1.35);
+        opacity: 1;
+      }
+    }
+
+    @keyframes floaty {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-6px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .pulse-dot,
+      .floating-a,
+      .floating-b {
+        animation: none;
+      }
+    }
+
+    /* === Hover lifts === */
+    .card, .compare-card, .proof-card, .faq-card, .care-card, .flow-card {
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+    .card:hover, .compare-card:hover, .proof-card:hover, .faq-card:hover,
+    .care-card:hover, .flow-card:hover {
+      transform: translateY(-5px) !important;
+      box-shadow: 0 34px 80px rgba(22, 20, 23, 0.16);
+    }
+
+    /* === Card colour tints === */
+    .card.signal {
+      background: linear-gradient(170deg, rgba(255,255,255,0.9) 0%, rgba(255,217,224,0.38) 100%);
+      border-color: rgba(255, 79, 109, 0.16);
+    }
+    .card.calm {
+      background: linear-gradient(170deg, rgba(255,255,255,0.9) 0%, rgba(214,245,239,0.48) 100%);
+      border-color: rgba(12, 155, 137, 0.16);
+    }
+    .card.sun {
+      background: linear-gradient(170deg, rgba(255,255,255,0.9) 0%, rgba(255,241,168,0.48) 100%);
+      border-color: rgba(255, 216, 76, 0.32);
+    }
+
+    /* === CTA shimmer === */
+    .btn {
+      position: relative;
+    }
+    .btn-primary {
+      overflow: hidden;
+    }
+    .btn-primary::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 25%, rgba(255,255,255,0.18) 50%, transparent 75%);
+      transform: translateX(-100%);
+      animation: btn-shimmer 2.8s ease-in-out infinite;
+    }
+    @keyframes btn-shimmer {
+      0%      { transform: translateX(-100%); }
+      60%,100% { transform: translateX(200%); }
+    }
+
+    /* === Scroll reveal === */
+    .reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* === Hero spotlight (mouse-tracking) === */
+    .hero-main {
+      --mx: 60%;
+      --my: 30%;
+    }
+    .spotlight {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(380px circle at var(--mx) var(--my), rgba(255,123,34,0.13), transparent 65%);
+      z-index: 0;
+    }
+    .hero-main > .eyebrow,
+    .hero-main > h1,
+    .hero-main > .hero-lead,
+    .hero-main > .pulse-line,
+    .hero-main > .hero-tags,
+    .hero-main > .cta-row,
+    .hero-main > .hero-foot {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* === Icon badges === */
+    .care-icon,
+    .flow-icon {
+      display: block;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 14px;
+      padding: 9px;
+      border-radius: 14px;
+      flex-shrink: 0;
+    }
+    .care-icon {
+      background: linear-gradient(135deg, rgba(12,155,137,0.13) 0%, rgba(255,216,76,0.16) 100%);
+      color: var(--teal);
+    }
+    .flow-icon {
+      background: linear-gradient(135deg, rgba(255,123,34,0.14) 0%, rgba(255,216,76,0.2) 100%);
+      color: var(--orange-deep);
+    }
+
+    /* === Sticky CTA === */
+    .sticky-cta {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 200;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
+    }
+    .sticky-cta.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    @media (max-width: 760px) {
+      .sticky-cta {
+        bottom: 16px;
+        right: 16px;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .hero-grid,
+      .pilot-grid,
+      .cards-4,
+      .cards-3,
+      .compare-grid,
+      .proof-grid,
+      .faq-grid,
+      .flow-grid,
+      .care-grid,
+      .battery-grid,
+      .art-grid,
+      .mode-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .nav {
+        display: none;
+      }
+
+      .hero-grid,
+      .pilot-grid,
+      .cards-4,
+      .cards-3,
+      .compare-grid,
+      .proof-grid,
+      .faq-grid,
+      .flow-grid,
+      .care-grid,
+      .battery-grid,
+      .art-grid,
+      .mode-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-main,
+      .hero-side,
+      .card,
+      .compare-card,
+      .proof-card,
+      .faq-card,
+      .pilot-card,
+      .price-card,
+      .flow-card {
+        padding: 18px;
+      }
+
+      .topbar {
+        padding: 12px 14px;
+      }
+
+      .hero-lead,
+      .section-head p,
+      .accent-strip {
+        font-size: 17px;
+      }
+
+      h1 {
+        max-width: 100%;
+      }
+
+      .quick-card,
+      .sticky-card,
+      .card,
+      .proof-card {
+        transform: none !important;
+      }
+
+      .mode-tabs {
+        display: grid;
+      }
+
+      .battery-tabs {
+        display: grid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">К сути</a>
+  <div id="copy-status" class="sr-only" aria-live="polite"></div>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark">AI</div>
+          <div class="brand-title">AI-антихаос</div>
+        </div>
+        <nav class="nav">
+          <a href="#signals">Это про тебя?</a>
+          <a href="#build">Что получишь</a>
+          <a href="#flow">Как проходит</a>
+          <a href="#pilot">Формат и цена</a>
+          <a class="nav-cta" href="https://t.me/neonick" target="_blank" rel="noopener noreferrer">@neonick</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-main floating-a">
+          <div class="spotlight" aria-hidden="true"></div>
+          <div class="eyebrow">Для умных взрослых, у которых красивые системы быстро дохнут</div>
+          <h1>Когда мозг шумит, тебе нужен не курс. Тебе нужен вход.</h1>
+          <p class="hero-lead">
+            За 7 дней собираем AI-опору под твою реальную жизнь: меньше в голове, легче старт, мягче возврат после выпадения.
+          </p>
+          <div class="pulse-line">
+            <span class="pulse-dot"></span>
+            Если у тебя сейчас туман: не надо изучать AI. Надо, чтобы стало чуть легче уже на этой неделе.
+          </div>
+          <div class="hero-tags">
+            <div class="tag hot">2 созвона</div>
+            <div class="tag cool">7 дней допила</div>
+            <div class="tag">без техножаргона</div>
+            <div class="tag sun">без скучной продуктивности</div>
+            <div class="tag cool">можно голосом</div>
+          </div>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="https://t.me/neonick" target="_blank" rel="noopener noreferrer">Хочу себе такую опору</a>
+            <a class="btn btn-secondary" href="#start">Если даже написать тяжело</a>
+          </div>
+          <div class="hero-foot">
+            Просто напиши в Telegram: <a href="https://t.me/neonick" target="_blank" rel="noopener noreferrer"><strong>@neonick</strong></a> — коротко скажу, подходит ли формат.
+          </div>
+        </div>
+
+        <aside class="hero-side">
+          <article class="quick-card floating-b">
+            <div class="micro-label">Очень коротко</div>
+            <h3>Если читаешь на бегу</h3>
+            <ul class="quick-list">
+              <li>не лечение и не терапия;</li>
+              <li>не длинный курс;</li>
+              <li>цель: меньше хаоса, легче старт, мягче возврат.</li>
+            </ul>
+          </article>
+
+          <article class="sticky-card">
+            <div class="micro-label">Что станет легче</div>
+            <h3>Не идеальная жизнь. А меньше трения.</h3>
+            <ul class="mini-list">
+              <li>меньше держать в голове;</li>
+              <li>быстрее понимать, что делать сегодня;</li>
+              <li>легче заходить в липкие задачи;</li>
+              <li>не начинать каждый день с полного нуля.</li>
+            </ul>
+          </article>
+
+          <article class="sticky-card">
+            <div class="micro-label">Кому подходит</div>
+            <h3>Если у тебя умная голова и вечный развал в делах</h3>
+            <p>
+              СДВГ, ADHD-черты или просто хронический хаос.
+              Особенно если красивые системы уже обещали спасти, но сдохли через несколько дней.
+            </p>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <section id="start">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Если даже сообщение написать тяжело</h2>
+          <p>
+            С СДВГ первый шаг — обычно самый тяжёлый.
+            Поэтому сюда не нужно приходить собранным или красиво формулировать.
+          </p>
+        </div>
+        <div class="cards-3">
+          <article class="card calm">
+            <div class="card-top">старт</div>
+            <h3>Скопируй. Отправь. Всё.</h3>
+            <p>Не надо писать идеальное сообщение. Достаточно вот такого:</p>
+            <button class="copy-box" type="button" data-copy-box="Привет. У меня хаос в делах и трудный старт задач. Не очень понимаю, подходит ли мне твой формат. Можно коротко понять?" data-hint="нажми, чтобы скопировать">
+              Привет. У меня хаос в делах и трудный старт задач. Не очень понимаю, подходит ли мне твой формат. Можно коротко понять?
+            </button>
+          </article>
+          <article class="card sun">
+            <div class="card-top">дальше</div>
+            <h3>Что будет дальше, без мутного квеста</h3>
+            <ul class="mini-list">
+              <li>я отвечу коротко, без простыни;</li>
+              <li>задам 2-3 простых вопроса;</li>
+              <li>если есть матч, предложу короткий входной созвон;</li>
+              <li>если не матч, скажу это прямо.</li>
+            </ul>
+          </article>
+          <article class="card signal">
+            <div class="card-top">не надо</div>
+            <h3>Что точно не нужно делать</h3>
+            <ul class="mini-list">
+              <li>не надо сначала разбирать завалы;</li>
+              <li>не надо читать все материалы;</li>
+              <li>не надо красиво формулировать проблему;</li>
+              <li>можно написать одной строкой или голосовым.</li>
+            </ul>
+          </article>
+        </div>
+        <div class="accent-strip">
+          Если стыдно показывать бардак — это не повод откладывать. Можно начать с одного скрина, голосового или просто разговора. На звонок не нужно приносить "собранную версию себя".
+        </div>
+      </div>
+    </section>
+
+    <section id="trust">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Почему это не воздух</h2>
+          <p>
+            Пока кейсов мало, доверие держится не на обещаниях — а на сотнях часов живой практики,
+            реальных артефактах и честной рамке без инфобалласта.
+          </p>
+        </div>
+        <div class="proof-grid">
+          <article class="proof-card">
+            <span class="stat">15 лет</span>
+            <h3>Системной работы, а не вдохновляющих слов</h3>
+            <p>Бэкграунд во фронтенде и сборке рабочих контуров. Это не история "вчера открыл AI и стал консультантом".</p>
+            <div class="proof-note">есть инженерная опора</div>
+          </article>
+          <article class="proof-card">
+            <span class="stat">168 / 372</span>
+            <h3>AI-сессий и часов живой практики</h3>
+            <p>По <a href="/Users/neo/Dropbox/NeoSys/report_ru.html">локальному аналитическому отчёту</a> это уже сотни часов не теории, а реального использования AI как рабочей опоры.</p>
+            <div class="proof-note">не "интересуюсь AI", а живу в этом</div>
+          </article>
+          <article class="proof-card">
+            <span class="stat">не demo</span>
+            <h3>Система уже работает на настоящих проектах</h3>
+            <p>Память, weekly review, голос -> разбор, операционные контуры и живые проектные артефакты уже существуют, а не придумываются под лендинг.</p>
+            <div class="proof-note">реальные артефакты, не воздух</div>
+          </article>
+        </div>
+        <div class="accent-strip">
+          Я не обещаю магию и не делаю вид, что уже собрал продукт с сотней кейсов. Зато у меня есть то, чего часто нет у "экспертов по AI": система, которая работает на настоящих задачах, а не на демо-сэндбоксе.
+        </div>
+      </div>
+    </section>
+
+    <section id="battery">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Сколько у тебя сейчас батарейки?</h2>
+          <p>
+            Этот лендинг не надо читать весь. Выбери уровень, который сейчас ближе, — и возьми только одно.
+          </p>
+        </div>
+        <div class="battery-lab">
+          <div class="battery-tabs" role="tablist" aria-label="Выбор по уровню ресурса">
+            <button class="battery-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="battery-low" tabindex="0" data-battery-target="low">
+              <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="4" y="8" width="14" height="8" rx="2"/>
+                <path d="M18 10h2v4h-2"/>
+                <path d="M7 10h2v4H7z"/>
+              </svg>
+              10% батарейки
+            </button>
+            <button class="battery-tab" type="button" role="tab" aria-selected="false" aria-controls="battery-mid" tabindex="-1" data-battery-target="mid">
+              <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="4" y="8" width="14" height="8" rx="2"/>
+                <path d="M18 10h2v4h-2"/>
+                <path d="M7 10h2v4H7zM10 10h2v4h-2z"/>
+              </svg>
+              30% батарейки
+            </button>
+            <button class="battery-tab" type="button" role="tab" aria-selected="false" aria-controls="battery-high" tabindex="-1" data-battery-target="high">
+              <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="4" y="8" width="14" height="8" rx="2"/>
+                <path d="M18 10h2v4h-2"/>
+                <path d="M7 10h2v4H7zM10 10h2v4h-2zM13 10h2v4h-2z"/>
+              </svg>
+              Есть силы
+            </button>
+          </div>
+
+          <div class="battery-panel is-active" id="battery-low" role="tabpanel" data-battery-panel="low">
+            <div class="battery-grid">
+              <article class="battery-card">
+                <div class="micro-label">Не надо</div>
+                <h3>Не пытайся сейчас всё понять</h3>
+                <p>Не надо читать весь лендинг, разбираться в AI и решать, подходишь ли ты идеально. Это как раз тот тип перегруза, который здесь и пытаемся убрать.</p>
+              </article>
+              <article class="battery-card">
+                <div class="micro-label">Сделай только это</div>
+                <h3>Напиши одной строкой</h3>
+                <p>Открой Telegram и напиши `@neonick`: `кажется, это про меня, но у меня мало сил`. Этого уже хватает, чтобы начать без красивой самопрезентации.</p>
+                <div class="pilot-chip-row">
+                  <div class="pilot-chip">1 строка</div>
+                  <div class="pilot-chip">можно голосом</div>
+                  <div class="pilot-chip">без подготовки</div>
+                </div>
+              </article>
+              <article class="battery-card accent">
+                <div class="micro-label">Дальше</div>
+                <h3>Следующий шаг будет маленьким</h3>
+                <p>В ответ не прилетит квест на полчаса. Максимум несколько коротких вопросов и понятное `подходит / не подходит / что делать дальше`.</p>
+                <div class="cta-row" style="margin-top: 16px;">
+                  <a class="btn btn-primary" href="https://t.me/neonick" target="_blank" rel="noopener noreferrer">Написать @neonick</a>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="battery-panel" id="battery-mid" role="tabpanel" data-battery-panel="mid">
+            <div class="battery-grid">
+              <article class="battery-card">
+                <div class="micro-label">Посмотри</div>
+                <h3>Хватит трёх мест</h3>
+                <p>Тебе сейчас достаточно блока `Это вообще про тебя?`, раздела `Режимы` и FAQ. Всё остальное можно не читать до решения написать.</p>
+              </article>
+              <article class="battery-card">
+                <div class="micro-label">Подготовь</div>
+                <h3>Один кусок реальной жизни</h3>
+                <p>Если захочешь идти дальше, подготовь что-то одно: скрин хаоса, голосовое, пример липкой задачи или место, где ты чаще всего теряешь день.</p>
+                <div class="pilot-chip-row">
+                  <div class="pilot-chip">1 скрин</div>
+                  <div class="pilot-chip">или 1 голосовое</div>
+                  <div class="pilot-chip">или 1 пример</div>
+                </div>
+              </article>
+              <article class="battery-card accent">
+                <div class="micro-label">Смысл</div>
+                <h3>Не изучать, а проверить матч</h3>
+                <p>Тебе не надо "разобраться в продукте". Тебе надо быстро понять, снимет ли он часть трения в твоей реальной неделе.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="battery-panel" id="battery-high" role="tabpanel" data-battery-panel="high">
+            <div class="battery-grid">
+              <article class="battery-card">
+                <div class="micro-label">Изучи</div>
+                <h3>Посмотри режимы и proof</h3>
+                <p>Если есть ресурс, загляни в `Режимы`, `Как это выглядит вживую` и блок доверия. Они быстрее всего дают картинку, не уезжая в абстракции.</p>
+              </article>
+              <article class="battery-card">
+                <div class="micro-label">Принеси</div>
+                <h3>Один реальный узкий момент</h3>
+                <p>Лучший вход в пилот не "у меня в целом хаос", а что-то живое: липкая задача, разваленное утро, потеря контекста, плохая неделя после выпадения.</p>
+              </article>
+              <article class="battery-card accent">
+                <div class="micro-label">Не скатывайся</div>
+                <h3>Не превращай это в исследование на 2 часа</h3>
+                <p>Даже с ресурсом тут важен не идеальный анализ, а быстрый переход в действие. Если отклик есть, лучше написать, чем читать ещё час.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="care">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Почему этот формат не должен ломать тебя ещё сильнее</h2>
+          <p>
+            Несколько вещей стабильно убивают желание начинать: стыд за бардак, камера, слишком много решений на входе, ощущение что тебя оценивают. Здесь этого нет.
+          </p>
+        </div>
+        <div class="care-grid">
+          <article class="care-card">
+            <svg class="care-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <rect x="2" y="8" width="14" height="9" rx="2"/>
+              <path d="m22 8-5.5 3v4l5.5 3z"/>
+              <line x1="2" y1="2" x2="22" y2="22"/>
+            </svg>
+            <h3>Можно без камеры</h3>
+            <p>Камера не обязательна. Если тебе спокойнее голосом или просто с аватаркой, это нормальный режим, а не проблема.</p>
+          </article>
+          <article class="care-card">
+            <svg class="care-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <rect x="4" y="11" width="16" height="11" rx="2"/>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+            </svg>
+            <div class="micro-label">Опция</div>
+            <h3>Можно не шарить всё</h3>
+            <p>Не нужно показывать весь экран и весь бардак сразу. Можно начать с одного куска, скрина или просто рассказа.</p>
+          </article>
+          <article class="care-card">
+            <svg class="care-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="10" y1="8" x2="10" y2="16"/>
+              <line x1="14" y1="8" x2="14" y2="16"/>
+            </svg>
+            <h3>Можно ставить паузу</h3>
+            <p>Если поплыл, устал или вопрос слишком широкий, это не сбой. Можно остановиться, сузить или сменить способ разговора.</p>
+          </article>
+          <article class="care-card">
+            <svg class="care-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="9" y1="13" x2="15" y2="13"/>
+              <line x1="9" y1="17" x2="13" y2="17"/>
+            </svg>
+            <h3>После звонка можно получить recap</h3>
+            <p>Ты не обязан держать всё в голове. После важного шага можно зафиксировать: что главное, что пробуем и что пока не трогаем.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="signals">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Это вообще про тебя?</h2>
+          <p>
+            Если да — это про твою боль, не про абстрактную "продуктивность". Про то, почему каждый день ощущается тяжелее, чем должен.
+          </p>
+        </div>
+        <div class="cards-4">
+          <article class="card signal">
+            <div class="card-top">01</div>
+            <h3>Знаешь, что надо делать, но не можешь начать</h3>
+            <p>Не потому что ленивый. А потому что задача липкая, туманная и без точки входа.</p>
+          </article>
+          <article class="card calm">
+            <div class="card-top">02</div>
+            <h3>У тебя всё где-то записано, но ясности ноль</h3>
+            <p>Чаты, заметки, вкладки, голосовые, обещания. Всё есть. Ничего не собирается в понятное "что сейчас".</p>
+          </article>
+          <article class="card sun">
+            <div class="card-top">03</div>
+            <h3>Каждый день как новый запуск системы</h3>
+            <p>С утра сначала надо вспомнить контекст, а уже потом жить. И это выматывает сильнее самих задач.</p>
+          </article>
+          <article class="card signal">
+            <div class="card-top">04</div>
+            <h3>Сложные системы дохнут у тебя очень быстро</h3>
+            <p>Сначала энтузиазм, потом перегруз, потом отвращение даже к мысли "надо всё привести в порядок".</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Не новая версия тебя. А меньше трения.</h2>
+          <p>
+            История про "стань новой версией себя" здесь не продаётся. Убираем трение там, где твой день реально ломается.
+          </p>
+        </div>
+        <div class="compare-grid">
+          <article class="compare-card">
+            <div class="compare-label">Не это</div>
+            <h3>Ещё один красивый планер</h3>
+            <p>Который требует помнить про него, обслуживать его и чувствовать вину, если ты выпал.</p>
+          </article>
+          <article class="compare-card">
+            <div class="compare-label">А это</div>
+            <h3>Один главный вход для хаоса</h3>
+            <p>Куда можно быстро скинуть всё липкое и не держать половину жизни только в голове.</p>
+          </article>
+          <article class="compare-card">
+            <div class="compare-label">И ещё</div>
+            <h3>Мягкий возврат после плохого дня</h3>
+            <p>Не "соберись", а понятный способ вернуться в контекст без ощущения полного нуля.</p>
+          </article>
+        </div>
+        <div class="accent-strip">
+          Тебе не нужен ещё один курс, который надо героически досмотреть.
+          Тебе нужна система, которая помогает даже в дни, когда мозг уже шумит.
+        </div>
+      </div>
+    </section>
+
+    <section id="build">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Что у тебя появится после пилота</h2>
+          <p>
+            Никакого "Personal OS" и пульта управления жизнью. Короткий набор опор, который реально держится.
+          </p>
+        </div>
+        <div class="cards-4">
+          <article class="card calm">
+            <div class="card-top">вход</div>
+            <h3>Одно место для выгрузки хаоса</h3>
+            <p>Мысли, хвосты, идеи, "надо не забыть", обещания, куски задач. Не по 17 местам, а в один понятный вход.</p>
+          </article>
+          <article class="card sun">
+            <div class="card-top">AI</div>
+            <h3>3-5 живых AI-сценариев</h3>
+            <p>Разбить липкую задачу, выбрать следующий шаг, разгрести кашу, вернуть контекст, сузить фокус.</p>
+          </article>
+          <article class="card signal">
+            <div class="card-top">день</div>
+            <h3>Понятный вход в день</h3>
+            <p>Чтобы утром не зависать на вопросе "что мне вообще сегодня делать?" и не утекать в хаос ещё до обеда.</p>
+          </article>
+          <article class="card calm">
+            <div class="card-top">возврат</div>
+            <h3>Сценарий после выпадения</h3>
+            <p>Если ты выпал на день или три, система не должна умирать. Она должна помогать мягко вернуться.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="modes">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Где у тебя чаще всего ломается день?</h2>
+          <p>
+            Здесь нет одного сценария для всех. Можно быстро посмотреть режим, который сейчас больше всего похож на твою жизнь,
+            и понять, как вообще может выглядеть помощь.
+          </p>
+        </div>
+        <div class="mode-lab">
+          <div class="mode-tabs" role="tablist" aria-label="Режимы работы">
+            <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="mode-fog" tabindex="0" data-mode-target="fog">
+              <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <circle cx="9" cy="8" r="3"/>
+                <path d="M4 15h16M7 19h10"/>
+              </svg>
+              Утро в тумане
+            </button>
+            <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="mode-sticky" tabindex="-1" data-mode-target="sticky">
+              <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="5" y="5" width="14" height="14" rx="3"/>
+                <path d="M9 12h6M12 9v6"/>
+              </svg>
+              Липкая задача
+            </button>
+            <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="mode-week" tabindex="-1" data-mode-target="week">
+              <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M6 12a6 6 0 1 0 2-4.47"/>
+                <path d="M6 4v4h4"/>
+              </svg>
+              Плохая неделя
+            </button>
+          </div>
+
+          <div class="mode-panel is-active" id="mode-fog" role="tabpanel" data-mode-panel="fog">
+            <div class="mode-grid">
+              <article class="mode-copy">
+                <div class="micro-label">Режим 01</div>
+                <h3>Когда утром мозг уже устал от выбора</h3>
+                <p>
+                  Это тот сценарий, где день ломается ещё до первого действия. Не потому что дел много,
+                  а потому что уже на входе слишком много шума, вариантов и потерянного контекста.
+                </p>
+                <ul class="mode-list">
+                  <li>сужаем поле до 1-3 реально живых задач;</li>
+                  <li>достаём один понятный первый шаг вместо плана на всю жизнь;</li>
+                  <li>можно начать голосом, если текста в голове нет;</li>
+                  <li>утро не превращается в отдельную тяжёлую работу.</li>
+                </ul>
+                <div class="pilot-chip-row">
+                  <div class="pilot-chip">1 вопрос</div>
+                  <div class="pilot-chip">1 фокус</div>
+                  <div class="pilot-chip">можно голосом</div>
+                </div>
+              </article>
+              <article class="mode-art">
+                <div class="micro-label">Как это выглядит</div>
+                <h3>Мягкий вход вместо пустого экрана</h3>
+                <img src="assets/soft_start_map.svg" alt="Иллюстрация мягкого старта: голос, структура и один следующий шаг.">
+              </article>
+            </div>
+          </div>
+
+          <div class="mode-panel" id="mode-sticky" role="tabpanel" data-mode-panel="sticky">
+            <div class="mode-grid">
+              <article class="mode-copy">
+                <div class="micro-label">Режим 02</div>
+                <h3>Когда задача липкая и смотреть на неё противно</h3>
+                <p>
+                  Тут проблема не в знаниях и не в мотивации. Проблема в вязкости.
+                  Задача слишком большая, туманная или неприятная, поэтому мозг отталкивается от неё ещё до старта.
+                </p>
+                <ul class="mode-list">
+                  <li>режем задачу до микродвижения, а не до идеального плана;</li>
+                  <li>убираем пустые "надо заняться" и заменяем на действие;</li>
+                  <li>делаем сценарий, который не требует героизма;</li>
+                  <li>оставляем только то, что реально помогает зайти внутрь.</li>
+                </ul>
+                <div class="pilot-chip-row">
+                  <div class="pilot-chip">анти-вязкость</div>
+                  <div class="pilot-chip">1 микрошаг</div>
+                  <div class="pilot-chip">без героизма</div>
+                </div>
+              </article>
+              <article class="mode-art">
+                <div class="micro-label">Как это выглядит</div>
+                <h3>Из "не могу начать" в конкретный ход</h3>
+                <img src="assets/hero_chaos_to_clarity.svg" alt="Иллюстрация перехода от рассыпанного хаоса к понятному следующему шагу.">
+              </article>
+            </div>
+          </div>
+
+          <div class="mode-panel" id="mode-week" role="tabpanel" data-mode-panel="week">
+            <div class="mode-grid">
+              <article class="mode-copy">
+                <div class="micro-label">Режим 03</div>
+                <h3>Когда неделя поехала, и уже не хочется даже открывать систему</h3>
+                <p>
+                  Хорошая опора нужна не для идеального режима. Она нужна как раз для плохой недели,
+                  когда всё съехало, стыдно смотреть на хвосты и страшно начинать с полного нуля.
+                </p>
+                <ul class="mode-list">
+                  <li>вытаскиваем живой контекст без самогаза;</li>
+                  <li>смотрим, что ещё держится и за что можно зацепиться;</li>
+                  <li>возвращаем не всю жизнь сразу, а один реальный слой;</li>
+                  <li>делаем систему, которая умеет переживать сбой.</li>
+                </ul>
+                <div class="pilot-chip-row">
+                  <div class="pilot-chip">мягкий возврат</div>
+                  <div class="pilot-chip">не с нуля</div>
+                  <div class="pilot-chip">без стыда</div>
+                </div>
+              </article>
+              <article class="mode-art">
+                <div class="micro-label">Как это выглядит</div>
+                <h3>Proof и память вместо ощущения "я ничего не сделал"</h3>
+                <img src="assets/proof_stack.svg" alt="Иллюстрация стека доказательств и памяти: обзор, заметки и следы проделанной работы.">
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Как это выглядит вживую</h2>
+          <p>
+            Формат короткий. Сначала смотрим, где конкретно ломается. Потом собираем минимум. Потом проверяем, держится ли.
+          </p>
+        </div>
+        <div class="flow-grid">
+          <article class="flow-card">
+            <div class="step">01</div>
+            <h3>Разбираем, где ломается день</h3>
+            <p>Смотрим не "идеальную жизнь", а реальный бардак: старт задач, приоритеты, забывание, входящие, возврат после срыва.</p>
+          </article>
+          <article class="flow-card">
+            <div class="step">02</div>
+            <h3>Собираем минимальную схему</h3>
+            <p>Одно главное место, несколько рабочих AI-сценариев и короткий ритм, который не ощущается как ещё одна обязанность.</p>
+          </article>
+          <article class="flow-card">
+            <div class="step">03</div>
+            <h3>Докручиваем по твоей реальности</h3>
+            <p>Тестишь между созвонами, мы убираем лишнее, усиливаем то, что зашло, и не пытаемся делать из тебя машину.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Это уже живёт, а не рисуется на словах</h2>
+          <p>
+            На созвоне можно показать не слова, а реальные куски: AI как weekly review, голос → структура, рабочая память и несколько сценариев под твои задачи.
+          </p>
+        </div>
+        <div class="proof-grid">
+          <article class="proof-card">
+            <h3>Weekly review вместо "я ничего не сделал"</h3>
+            <p>AI собирает картину недели по фактам, а не по тревоге. Это особенно важно, когда у человека time blindness и чувство, что неделя испарилась.</p>
+            <div class="proof-note">меньше самогаза</div>
+          </article>
+          <article class="proof-card">
+            <h3>Голос вместо борьбы с пустым экраном</h3>
+            <p>Если текстом тяжело, рабочим входом может быть голос. Сказал как есть, получил структуру, мысль не потерялась.</p>
+            <div class="proof-note">меньше трения на входе</div>
+          </article>
+          <article class="proof-card">
+            <h3>Память вместо "где это вообще было?"</h3>
+            <p>Важный контекст перестаёт жить только в голове. Это экономит силы не хуже любого "плана на день".</p>
+            <div class="proof-note">меньше потери контекста</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="pilot">
+      <div class="wrap pilot-grid">
+        <article class="pilot-card">
+          <div class="section-head">
+            <h2>Пилот для первых 5 человек</h2>
+            <p>
+              Сейчас это живой формат для первых людей.
+              Идея не в том, чтобы "пройти программу", а в том, чтобы за короткий срок собрать рабочую внешнюю опору под твою жизнь.
+            </p>
+          </div>
+          <ul class="pilot-list">
+            <li>первый созвон 75-90 минут;</li>
+            <li>второй созвон 60-90 минут;</li>
+            <li>7 дней связи и докрутки;</li>
+            <li>разбор твоих реальных задач, заметок и хаоса;</li>
+            <li>минимум инструментов, максимум пользы;</li>
+            <li>готовые сценарии под твою реальность.</li>
+          </ul>
+          <div class="pilot-chip-row">
+            <div class="pilot-chip">18+</div>
+            <div class="pilot-chip">ноутбук или компьютер</div>
+            <div class="pilot-chip">диагноз не нужен</div>
+            <div class="pilot-chip">техбэкграунд не нужен</div>
+            <div class="pilot-chip">можно без подготовки</div>
+            <div class="pilot-chip">камера не обязательна</div>
+            <div class="pilot-chip">можно без полного screen share</div>
+          </div>
+          <div class="fit-notes">
+            <div class="fit-note fit-ok">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              <span>Подходит, если есть хаос, трудный старт задач и ощущение, что обычные системы требуют слишком много сил.</span>
+            </div>
+            <div class="fit-note fit-best">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span>Особенно хорошо заходит соло-спецам, креаторам и небольшим предпринимателям — тем, у кого хаос уже стоит денег или сроков.</span>
+            </div>
+            <div class="fit-note fit-no">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6m0-6 6 6"/></svg>
+              <span>Не подходит, если хочется магии без участия, длинной школы или сложной системы сразу.</span>
+            </div>
+          </div>
+        </article>
+
+        <aside class="price-card">
+          <div class="micro-label">Стартовая цена</div>
+          <h3>Первые 5 мест</h3>
+          <div class="price-amount">9 900 ₽</div>
+          <p>
+            Это пилот. После первых 5 кейсов цена и рамка почти точно изменятся.
+          </p>
+          <ul class="price-list">
+            <li>без длинных уроков;</li>
+            <li>без обязательной любви к технике;</li>
+            <li>без обещаний "починить жизнь";</li>
+            <li>без скучной продуктивности и инфоболтовни;</li>
+            <li>если формат не твой, я скажу это прямо.</li>
+          </ul>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="https://t.me/neonick" target="_blank" rel="noopener noreferrer">Написать @neonick</a>
+            <a class="btn btn-secondary" href="#faq">Сначала посмотреть FAQ</a>
+          </div>
+          <p class="small-note">
+            Контакт для записи:
+            <a href="https://t.me/neonick" target="_blank" rel="noopener noreferrer"><strong>@neonick</strong></a>
+          </p>
+          <p class="small-note">
+            Для подкастов, эфиров, медиа и сообществ: тоже
+            <a href="https://t.me/neonick" target="_blank" rel="noopener noreferrer"><strong>@neonick</strong></a>
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>FAQ</h2>
+          <p>
+            Если от слова "система" уже подташнивает, это как раз нормально.
+            Весь смысл здесь в том, чтобы не навесить на тебя ещё один тяжёлый слой.
+          </p>
+        </div>
+        <div class="faq-grid">
+          <article class="faq-card">
+            <h3>Я вообще не технарь. Мне сюда можно?</h3>
+            <p>Да. Мы не собираем пульт космического корабля. Мы собираем понятный способ меньше держать в голове и легче заходить в дела.</p>
+          </article>
+          <article class="faq-card">
+            <h3>Это терапия или лечение?</h3>
+            <p>Нет. Это практическая настройка внешней опоры. Она может дополнять терапию, медикацию или коучинг, но не заменяет их.</p>
+          </article>
+          <article class="faq-card">
+            <h3>А если у меня нет диагноза?</h3>
+            <p>Диагноз не обязателен. Если у тебя есть хаос, трудный старт задач, потеря контекста и обычные системы не держатся, формат уже может подойти.</p>
+          </article>
+          <article class="faq-card">
+            <h3>Я уже пробовал планеры, Notion и todo-приложения</h3>
+            <p>Тем более. Здесь задача не навесить ещё один слой контроля, а убрать лишнее и оставить только то, что реально снижает трение.</p>
+          </article>
+          <article class="faq-card">
+            <h3>Это не будет слишком сложно?</h3>
+            <p>Если слишком сложно, значит сделано плохо. Весь формат строится вокруг минимума, который можно удерживать даже в неидеальной жизни.</p>
+          </article>
+          <article class="faq-card">
+            <h3>Что если у меня как раз сейчас плохая неделя?</h3>
+            <p>Это не минус. Наоборот: полезно смотреть не на красивую версию жизни, а на ту, где мозг шумит и всё сыпется. Под это и собирается система.</p>
+          </article>
+          <article class="faq-card">
+            <h3>Что если между звонками я выпаду и ничего не сделаю?</h3>
+            <p>Это не повод исчезать. Полезно даже просто прислать одну строку или голосовое: где именно сломалось. Это тоже материал для настройки.</p>
+          </article>
+          <article class="faq-card">
+            <h3>Это бесконечный чат и постоянный суппорт?</h3>
+            <p>Нет. Это короткий пилот с 7 днями связи и точечными докрутками. Смысл не в бесконечном сопровождении, а в том, чтобы собрать рабочий минимум, который держится в жизни.</p>
+          </article>
+          <article class="faq-card">
+            <h3>Почему к тебе, а не просто в ChatGPT самому?</h3>
+            <p>Потому что тут ценность не в "доступе к AI", а в сборке конкретного рабочего контура под твою реальность. Сам инструмент у многих уже есть. Проблема обычно в том, что нет схемы, которая держится.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <a class="sticky-cta btn btn-primary" href="https://t.me/neonick" target="_blank" rel="noopener noreferrer" aria-label="Написать @neonick в Telegram">
+    <svg style="width:18px;height:18px;margin-right:8px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9l20-7z"/>
+    </svg>
+    Написать @neonick
+  </a>
+
+  <footer class="wrap footer-note">
+    Контакт для записи:
+    <a href="https://t.me/neonick" target="_blank" rel="noopener noreferrer"><strong>@neonick</strong></a><br>
+    Для медиа, подкастов, эфиров и партнёрств: тот же контакт.
+  </footer>
+  <script>
+    const copyBox = document.querySelector("[data-copy-box]");
+    const copyStatus = document.querySelector("#copy-status");
+
+    if (copyBox) {
+      const originalHint = copyBox.getAttribute("data-hint");
+
+      copyBox.addEventListener("click", async () => {
+        const text = copyBox.getAttribute("data-copy-box");
+
+        try {
+          await navigator.clipboard.writeText(text);
+          copyBox.classList.add("is-copied");
+          copyBox.setAttribute("data-hint", "Скопировано. Можно сразу отправлять.");
+          if (copyStatus) copyStatus.textContent = "Сообщение скопировано";
+
+          window.setTimeout(() => {
+            copyBox.classList.remove("is-copied");
+            copyBox.setAttribute("data-hint", originalHint);
+            if (copyStatus) copyStatus.textContent = "";
+          }, 2200);
+        } catch (error) {
+          copyBox.setAttribute("data-hint", "Если не скопировалось, просто выдели текст руками.");
+          if (copyStatus) copyStatus.textContent = "Автокопирование не сработало";
+
+          window.setTimeout(() => {
+            copyBox.setAttribute("data-hint", originalHint);
+            if (copyStatus) copyStatus.textContent = "";
+          }, 2600);
+        }
+      });
+    }
+
+    // Hero spotlight — mouse tracking
+    const heroMain = document.querySelector('.hero-main');
+    if (heroMain) {
+      heroMain.addEventListener('mousemove', (e) => {
+        const r = heroMain.getBoundingClientRect();
+        heroMain.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+        heroMain.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+      });
+      heroMain.addEventListener('mouseleave', () => {
+        heroMain.style.setProperty('--mx', '60%');
+        heroMain.style.setProperty('--my', '30%');
+      });
+    }
+
+    // Scroll reveal
+    if ('IntersectionObserver' in window) {
+      const revealObs = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            revealObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll(
+        '.section-head, .cards-4, .cards-3, .compare-grid, .proof-grid, ' +
+        '.care-grid, .flow-grid, .battery-lab, .mode-lab, .pilot-grid, ' +
+        '.faq-grid, .accent-strip'
+      ).forEach((el) => {
+        el.classList.add('reveal');
+        revealObs.observe(el);
+      });
+    }
+
+    // Sticky CTA — appears after scrolling past the hero
+    const stickyCta = document.querySelector('.sticky-cta');
+    if (stickyCta) {
+      window.addEventListener('scroll', () => {
+        stickyCta.classList.toggle('is-visible', window.scrollY > 560);
+      }, { passive: true });
+    }
+
+    function setupTabs({ tabSelector, panelSelector, tabAttr, panelAttr }) {
+      const tabs = Array.from(document.querySelectorAll(tabSelector));
+      const panels = Array.from(document.querySelectorAll(panelSelector));
+
+      if (!tabs.length || !panels.length) return;
+
+      function activate(tab) {
+        const target = tab.getAttribute(tabAttr);
+
+        tabs.forEach((button) => {
+          const isActive = button === tab;
+          button.classList.toggle("is-active", isActive);
+          button.setAttribute("aria-selected", isActive ? "true" : "false");
+          button.tabIndex = isActive ? 0 : -1;
+        });
+
+        panels.forEach((panel) => {
+          panel.classList.toggle("is-active", panel.getAttribute(panelAttr) === target);
+        });
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          activate(tab);
+        });
+
+        tab.addEventListener("keydown", (event) => {
+          const currentIndex = tabs.indexOf(tab);
+          let nextIndex = currentIndex;
+
+          if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabs.length;
+          if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+
+          if (nextIndex !== currentIndex) {
+            event.preventDefault();
+            tabs[nextIndex].focus();
+            activate(tabs[nextIndex]);
+          }
+        });
+      });
+    }
+
+    setupTabs({
+      tabSelector: "[data-mode-target]",
+      panelSelector: "[data-mode-panel]",
+      tabAttr: "data-mode-target",
+      panelAttr: "data-mode-panel"
+    });
+
+    setupTabs({
+      tabSelector: "[data-battery-target]",
+      panelSelector: "[data-battery-panel]",
+      tabAttr: "data-battery-target",
+      panelAttr: "data-battery-panel"
+    });
+  </script>
+</body>
+</html>
